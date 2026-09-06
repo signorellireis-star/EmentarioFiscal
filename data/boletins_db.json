@@ -1,0 +1,304 @@
+[
+  {
+    "numero_boletim": "19.2026",
+    "periodo": "11 a 17.05.2026",
+    "departamento": "Fiscal",
+    "subtitulo": "Ementário Fiscal",
+    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+    "itens": [
+      {
+        "numero": 1,
+        "esfera": "ESTADUAL",
+        "titulo": "1. CE - Instrução Normativa SEFAZ nº 50, de 30.04.2026 - DOE CE de 12.05.2026",
+        "data_publicacao": "12.05.2026",
+        "norma": "Instrução Normativa SEFAZ nº 50/2026",
+        "link": "https://sefazlegis.sefaz.ce.gov.br/api/openFile?id=7617d516-b65a-4d3b-ae87-fa5d6fcc090c",
+        "orgao": "SEFAZ CE",
+        "resumo_tabela": "Altera o Anexo Único da IN nº 30/2025, que consolida a Tabela de Códigos de Ajustes da Apuração do ICMS na EFD ICMS/IPI no Estado do Ceará.",
+        "impacto": "ICMS / EFD",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "A Secretária da Fazenda do Estado do Ceará alterou o início da vigência dos códigos de ajustes da apuração constantes da **Tabela 5.1.1 (Tabela de Códigos de Ajustes da Apuração do ICMS)**, previstos na Instrução Normativa nº 56/2024, que estabelece procedimentos de registro na **Escrituração Fiscal Digital (EFD ICMS/IPI)** do documento fiscal complementar de que trata o artigo 57 do Decreto nº 33.327/2019.",
+          "Com esta alteração, os contribuintes cearenses deverão atentar para o **novo cronograma de obrigatoriedade** e conformidade dos lançamentos de ajuste na escrituração fiscal digital."
+        ],
+        "plano_de_acao": [
+          "**Sistemas / TI Fiscal:** Verificar se a tabela de códigos de ajuste da EFD no ERP está atualizada com o novo cronograma cearense para evitar rejeições na validação do Sped Fiscal.",
+          "**Escrituração Fiscal:** Validar a correta amarração dos documentos fiscais complementares emitidos para as filiais ou clientes no Ceará."
+        ],
+        "vigencia": "Efeitos a partir de 12.05.2026."
+      },
+      {
+        "numero": 2,
+        "esfera": "ESTADUAL",
+        "titulo": "2. DF - Lei Complementar nº 1.068, de 06.05.2026 - DODF de 08.05.2026",
+        "data_publicacao": "08.05.2026",
+        "norma": "Lei Complementar nº 1.068/2026",
+        "link": "https://ww1.receita.fazenda.df.gov.br/legislacao/visualizar-legislacao?txtNumero=1068&txtAno=2026&txtTipo=4&txtParte=.&identificacao=Lei%20Complementar%20do%20DF%20n%C2%BA%201068%2F2026",
+        "orgao": "SEFAZ DF",
+        "resumo_tabela": "Dispõe sobre a concorrência leal entre os agentes econômicos e estabelece regras para a identificação e fiscalização de devedores contumazes de ICMS.",
+        "impacto": "ICMS",
+        "area_impactada": "Jurídico, Indiretos",
+        "corpo_paragrafos": [
+          "A Lei Complementar distrital tem como objetivo **coibir o desequilíbrio concorrencial** no Distrito Federal, caracterizando como **devedor contumaz** o contribuinte que reiteradamente deixa de recolher o ICMS declarado (em 6 períodos nos últimos 12 meses) ou acumula dívida ativa desproporcional ao seu patrimônio líquido.",
+          "Os contribuintes enquadrados ficarão sujeitos a **regime especial de fiscalização**, que inclui exigência de cumprimento antecipado de obrigações tributárias, prestação diária de informações fiscais e **cassação de credenciamentos ou benefícios fiscais**."
+        ],
+        "plano_de_acao": [
+          "**Tributário / Compliance:** Monitorar a regularidade fiscal das filiais no Distrito Federal para garantir que não haja pendências de recolhimento que possam ensejar enquadramento no regime especial.",
+          "**Cadastro / Fornecedores:** Avaliar checagem periódica da regularidade fiscal dos principais fornecedores locais do DF para mitigar riscos na cadeia de suprimentos."
+        ],
+        "vigencia": "Vigência a partir de sua publicação."
+      },
+      {
+        "numero": 3,
+        "esfera": "ESTADUAL",
+        "titulo": "3. RJ - Portaria SUPTRIB nº 61, de 11.05.2026 - DOE RJ de 12.05.2026",
+        "data_publicacao": "12.05.2026",
+        "norma": "Portaria SUPTRIB nº 61/2026",
+        "link": "https://legislacao.fazenda.rj.gov.br/portaria-suptrib-no-61-de-11-de-maio-de-2026/",
+        "orgao": "SEFAZ RJ",
+        "resumo_tabela": "Divulga a relação de consultas tributárias respondidas pela Superintendência de Tributação no período de 16 a 30 de abril de 2026.",
+        "impacto": "Consultas Tributárias",
+        "area_impactada": "Indiretos, Consultoria",
+        "corpo_paragrafos": [
+          "O Superintendente de Tributação da SEFAZ/RJ publicou a relação das decisões e pareceres emitidos em **processos de consulta tributária** formulados por contribuintes no final do mês de abril de 2026.",
+          "Ressalta-se que, caso ocorra superveniente alteração de entendimento decorrente de ato normativo da administração tributária, as novas regras deverão ser **cumpridas no prazo fixado**, alcançando inclusive os consulentes individuais."
+        ],
+        "plano_de_acao": [
+          "**Consultoria Tributária:** Analisar as ementas das respostas no portal da SEFAZ/RJ para verificar eventuais entendimentos aplicáveis ao portfólio de eletroeletrônicos e serviços.",
+          "**Operacional:** Apenas acompanhamento informativo; sem necessidade de alteração sistêmica imediata."
+        ],
+        "vigencia": "Efeitos a partir de 12.05.2026."
+      },
+      {
+        "numero": 4,
+        "esfera": "ESTADUAL",
+        "titulo": "4. SP - Portaria SRE nº 22, de 11.05.2026 - DOE SP de 12.05.2026",
+        "data_publicacao": "12.05.2026",
+        "norma": "Portaria SRE nº 22/2026",
+        "link": "https://www.legisweb.com.br/legislacao/?id=495655",
+        "orgao": "SEFAZ SP",
+        "resumo_tabela": "Altera a Portaria CAT nº 102/2013, que dispõe sobre a emissão do Manifesto Eletrônico de Documentos Fiscais (MDF-e) e dá outras providências.",
+        "impacto": "MDF-e / Obrigações",
+        "area_impactada": "Logística, Indiretos",
+        "corpo_paragrafos": [
+          "A Subsecretaria da Receita Estadual de São Paulo promoveu ajustes nas regras operacionais relativas à emissão do **Manifesto Eletrônico de Documentos Fiscais (MDF-e, modelo 58)**.",
+          "Os ajustes disciplinam procedimentos em casos de **emissão em contingência**, validações eletrônicas nos postos fiscais e eventos obrigatórios de **encerramento do manifesto** ao término dos transportes de mercadorias."
+        ],
+        "plano_de_acao": [
+          "**Logística / Expedição:** Alinhar com as equipes dos Centros de Distribuição (CDs) de SP os novos procedimentos de encerramento do MDF-e na conclusão dos transportes.",
+          "**Sistemas / TMS:** Garantir que o sistema emissor de manifesto atenda às regras e validações atualizadas pela SEFAZ/SP."
+        ],
+        "vigencia": "Efeitos a partir de sua publicação."
+      },
+      {
+        "numero": 5,
+        "esfera": "ESTADUAL",
+        "titulo": "5. SP - Resposta à Consulta Tributária nº 33696/2026 - DOE SP de 14.05.2026",
+        "data_publicacao": "14.05.2026",
+        "norma": "RC 33696/2026",
+        "link": "https://legislacao.fazenda.sp.gov.br/Paginas/RC33696_2026.aspx",
+        "orgao": "SEFAZ SP",
+        "resumo_tabela": "ICMS – Inscrição estadual baixada – Impossibilidade de aproveitamento posterior do saldo credor remanescente.",
+        "impacto": "ICMS / Créditos",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "A Consultoria Tributária da SEFAZ/SP analisou consulta referente ao encerramento de estabelecimento e eventual saldo credor de ICMS acumulado decorrente de transferências de mercadorias.",
+          "Firmou-se o entendimento oficial de que o **encerramento do estabelecimento**, com a respectiva baixa da inscrição estadual, acarreta, por regra, a **perda definitiva do saldo credor existente**, não sendo passível de transferência posterior sem autorização legal prévia."
+        ],
+        "plano_de_acao": [
+          "**Planejamento Fiscal / Societário:** Nos processos de reorganização ou baixa de filiais em SP, planejar previamente o aproveitamento ou compensação de saldos credores de ICMS antes da formalização da baixa cadastral.",
+          "**Contabilidade:** Proceder ao estorno tempestivo de saldos credores residuais de estabelecimentos baixados, conforme orientação fazendária."
+        ],
+        "vigencia": "Publicada em 14.05.2026."
+      },
+      {
+        "numero": 6,
+        "esfera": "MUNICIPAL",
+        "titulo": "6. Vitória/ES - Decreto Municipal nº 26.621, de 13.05.2026 - DOM Vitória de 14.05.2026",
+        "data_publicacao": "14.05.2026",
+        "norma": "Decreto nº 26.621/2026",
+        "link": "https://diariooficial.vitoria.es.gov.br/ExibirArquivo.aspx?qs=nnmrXIDe5L4hR81FZwDXlD95Q%2fWHOCtXgeCw%2fnRIrFMxQA7S5mwuf0RM3mOCPGtiwqKwtsQd8WTWmli6Dukj2Y06%2fWOHdSjTn%2f9uS9KhMZ6sy9ZQ%2fBvBSspE7bOviZYl",
+        "orgao": "Prefeitura Vitória",
+        "resumo_tabela": "Prorroga o prazo para recolhimento do Imposto Sobre Serviços de Qualquer Natureza (ISSQN) próprio e do retido na fonte no Município de Vitória.",
+        "impacto": "ISSQN",
+        "area_impactada": "Diretos, Indiretos",
+        "corpo_paragrafos": [
+          "A Prefeitura Municipal de Vitória/ES prorrogou excepcionalmente para o **dia 20 de maio de 2026** o prazo para recolhimento do **ISSQN mensal** calculado sobre o preço dos serviços prestados pelos estabelecimentos sediados no município.",
+          "A prorrogação estende-se igualmente ao recolhimento do **ISSQN retido na fonte** pelos tomadores de serviços cujos pagamentos tenham vencimento no período correspondente."
+        ],
+        "plano_de_acao": [
+          "**Contas a Pagar / Financeiro:** Programar o recolhimento do ISS próprio e retido da filial de Vitória para o novo prazo de **20.05.2026**, otimizando o fluxo financeiro.",
+          "**Fiscal / Retenções:** Validar os relatórios de serviços tomados com retenção de ISS no município para geração pontual das guias."
+        ],
+        "vigencia": "Efeitos a partir de 14.05.2026."
+      }
+    ],
+    "noticias": [
+      {
+        "titulo": "Governo cria grupo e vai estudar precificação para operacionalizar split payment",
+        "corpo_paragrafos": [
+          "O Ministério da Fazenda e a Controladoria-Geral da União (CGU) instituíram um grupo de trabalho para avaliar os modelos de **precificação e remuneração da rede arrecadadora de tributos federais**, com foco na operacionalização do sistema de **split payment** previsto na Reforma Tributária sobre o consumo.",
+          "O mecanismo prevê a retenção e recolhimento instantâneo da CBS e do IBS no momento da liquidação financeira das vendas. O comitê analisará a viabilidade operacional e os custos para as empresas varejistas e credenciadoras de cartão."
+        ],
+        "fonte": "Jota (13/05/2026)",
+        "link": "https://www.jota.info/coberturas-especiais/pulso-da-reforma/governo-cria-grupo-e-vai-estudar-precificacao-para-operacionalizar-split-payment"
+      },
+      {
+        "titulo": "Carf nega créditos de PIS/Cofins por despesas da Renner com publicidade digital",
+        "corpo_paragrafos": [
+          "A 1ª Turma da Câmara Superior do Carf negou, por voto de qualidade a favor da Fazenda Nacional, o direito de creditamento de **PIS e Cofins sobre despesas de publicidade e propaganda digital** contratadas por grande empresa varejista de vestuário.",
+          "Prevaleceu o entendimento de que os gastos com mídia e publicidade constituem **despesas operacionais e de marketing**, não se enquadrando no conceito legal de insumos da atividade comercial varejista."
+        ],
+        "fonte": "Jota (14/05/2026)",
+        "link": "https://www.jota.info/tributos/carf-nega-creditos-de-pis-cofins-por-despesas-da-renner-com-publicidade-digital"
+      }
+    ]
+  },
+  {
+    "numero_boletim": "33.2026",
+    "periodo": "16 a 22.08.2026",
+    "departamento": "Fiscal",
+    "subtitulo": "Ementário Fiscal",
+    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+    "itens": [
+      {
+        "numero": 1,
+        "esfera": "FEDERAL",
+        "titulo": "1. BR - Ato Declaratório CONFAZ nº 18, de 14.08.2026 - DOU de 17.08.2026",
+        "data_publicacao": "17.08.2026",
+        "norma": "Ato Declaratório CONFAZ nº 18/2026",
+        "link": "https://www.confaz.fazenda.gov.br/legislacao/atos-declaratorios/2026/ato-declaratorio-18-26",
+        "orgao": "RFB",
+        "resumo_tabela": "Autoriza a dispensa de juros e multas mediante pagamento à vista de débitos fiscais relacionados com o ICMS.",
+        "impacto": "ICMS",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "Ratifica Convênio ICMS 92/26 (Ementário 32.2026) que autoriza o Estado da Paraíba a instituir programa de quitação incentivada de débitos fiscais relacionados ao ICMS - Regularidade Fiscal vencidos até 30 de junho de 2026, inscritos ou não em dívida ativa, inclusive ajuizados, observadas as condições e limites estabelecidos neste convênio."
+        ],
+        "vigencia": "Efeitos a partir de 17.08.2026.",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Ato Declaratório CONFAZ nº 18/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      },
+      {
+        "numero": 2,
+        "esfera": "FEDERAL",
+        "titulo": "2. BR - Portaria RFB nº 720, de 18 de agosto de 2026 - DOU de 20.08.2026 - Edição Extra",
+        "data_publicacao": "20.08.2026",
+        "norma": "Portaria RFB nº 720/2026",
+        "link": "https://normasinternet2.receita.fazenda.gov.br/#/consulta/externa/152992",
+        "orgao": "RFB",
+        "resumo_tabela": "Dispõe sobre a utilização do sistema e-Editais como plataforma oficial de publicação eletrônica nas hipóteses que especifica",
+        "impacto": "Publicações da RFB",
+        "area_impactada": "Jurídico, Paralegal",
+        "corpo_paragrafos": [
+          "Sistema de editais definido como plataforma oficial de publicação eletrônica dos seguintes atos expedidos pela Receita Federal do Brasil:",
+          "a) atos declaratórios executivos;<br>b) editais de notificação; e<br>c) editais de intimação."
+        ],
+        "vigencia": "Efeitos a partir de 20.08.2026.",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Portaria RFB nº 720/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      },
+      {
+        "numero": 3,
+        "esfera": "ESTADUAL",
+        "titulo": "3. ES - Portaria SEFAZ nº 76-R, de 17.08.2026 - DOE ES de 19.08.2026",
+        "data_publicacao": "19.08.2026",
+        "norma": "Portaria SEFAZ nº 76-R/2026",
+        "link": "https://www3.sefaz.es.gov.br/legislacao/doc_viewer?src=/legislacao/doc/PORTARIAS/2026/Port076-R.htm",
+        "orgao": "SEFAZ ES",
+        "resumo_tabela": "Altera o prazo de vigência para empresas neste Estado como Substitutos",
+        "impacto": "ICMS-ST",
+        "area_impactada": "Paralegal",
+        "corpo_paragrafos": [
+          "Este ato altera o prazo de vigência contido no anexo único da Port. 040-R/26 que credencia empresas sediadas neste Estado como contribuintes substitutos, para recolhimento do imposto devido nas operações com mercadorias sujeitas ao regime de substituição tributária, nas condições que especifica."
+        ],
+        "imagem_extra": "generator/assets/credenciamento_es.png",
+        "vigencia": "Efeitos a partir de 19.08.2026.",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Portaria SEFAZ nº 76-R/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      },
+      {
+        "numero": 4,
+        "esfera": "ESTADUAL",
+        "titulo": "4. GO - Instrução Normativa SEE nº 1.643, de 17.08.2026 - DOE GO - Suplemento de 18.08.2026",
+        "data_publicacao": "18.08.2026",
+        "norma": "Instrução Normativa SEE nº 1.643/2026",
+        "link": "https://www.legisweb.com.br/legislacao/?id=499452",
+        "orgao": "SEFAZ GO",
+        "resumo_tabela": "Dispõe sobre os procedimentos para adesão às medidas facilitadoras do Programa NEGOCIE JÁ II para que o sujeito passivo negocie seus débitos relacionados ao ICMS, IPVA e ITCD",
+        "impacto": "ICMS",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "Esta instrução normativa altera a IN GSE nº 1.616/2025, que dispõe sobre os procedimentos para adesão às medidas facilitadoras do Programa NEGOCIE JÁ II, que possibilitam ao sujeito passivo a negociação de débitos relacionados ao ICMS, IPVA e ITCD, para prorrogar, de 31.07.2026 para até 03.11.2026, o prazo de adesão ao programa."
+        ],
+        "vigencia": "Efeitos a partir de 01.02.2026.",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Instrução Normativa SEE nº 1.643/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      },
+      {
+        "numero": 5,
+        "esfera": "ESTADUAL",
+        "titulo": "5. MA -   Medida Provisória nº 559, de 18.08.2026 - DOE MA de 18.08.2026",
+        "data_publicacao": "18.08.2026",
+        "norma": "Medida Provisória nº 559/2026",
+        "link": "https://www.econeteditora.com.br/icms_ma/medidas_provisorias/2026/medida_provisoria_559_2026.php",
+        "orgao": "SEFAZ MA",
+        "resumo_tabela": "Altera o Programa de Pagamento e Parcelamento de Créditos Tributários relacionados ao ICM e ao ICMS",
+        "impacto": "DIFAL",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "Altera dispositivos da Lei nº 12.591, de 24 de junho de 2025, que instituiu, no âmbito da Secretaria de Estado da Fazenda - SEFAZ, o Programa de Pagamento e Parcelamento de Créditos Tributários relacionados ao ICM e ao ICMS, nos termos do Convênio ICMS nº 55/2025, alterado pelo Convênio ICMS nº 71, de 3 de julho de 2026, com relação aos fatos geradores ocorridos até 31 de dezembro de 2025, constituídos ou não, inscritos ou não em Dívida Ativa, inclusive objeto de parcelamentos anteriores rescindidos ou ativos, espontaneamente denunciados pelo contribuinte, em discussão administrativa ou judicial, ou ainda proveniente de lançamento de ofício, com redução de juros, multas e demais acréscimos legais.",
+          "Com esta alteração a adesão ao programa poderá ser feita até 30 de outubro de 2026."
+        ],
+        "vigencia": "Efeitos a partir de 18.08.2026.",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Medida Provisória nº 559/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      },
+      {
+        "numero": 6,
+        "esfera": "ESTADUAL",
+        "titulo": "6. DF - Instrução Normativa SEEC nº 7, de 12.08.2026 - DO DF de 21.08.2026",
+        "data_publicacao": "21.08.2026",
+        "norma": "Instrução Normativa SEEC nº 7/2026",
+        "link": "https://www.dodf.df.gov.br/dodf/materia/visualizar?co_data=622756&p=instrucao-normativa-n-07-de-12-de-agosto-de-2026",
+        "orgao": "SEFAZ DF",
+        "resumo_tabela": "Estabelece procedimentos para a restituição parcial e a complementação do valor do ICMS pago no regime de ST para frente, sempre que a base de cálculo efetiva da operação for diversa da presumida.",
+        "impacto": "ICMS-ST",
+        "area_impactada": "Indiretos",
+        "corpo_paragrafos": [
+          "Esta instrução normativa estabelece que o contribuinte substituído tributário que realizar venda direta a consumidor final deverá complementar o valor do ICMS devido por substituição tributária pago a menor, nos casos em que a venda tenha sido realizada por valor superior ao presumido.",
+          "A complementação deverá ocorrer quando a base de cálculo presumida for inferior à da operação, hipótese em que será devido ao Distrito Federal o imposto decorrente desta diferença.",
+          "Os pedidos de restituição poderão abranger valores pagos a maior em operações realizadas a contar de 27.10.2016, desde que observado o prazo prescricional previsto na legislação tributária nacional. O requerimento deverá ser apresentado eletronicamente no Portal de Serviços da Receita do Distrito Federal, acompanhado das informações e documentos exigidos pela norma.",
+          "Além disso, a norma disciplina os procedimentos para escrituração dos valores restituídos ou complementados na Escrituração Fiscal Digital (EFD).",
+          "Anteriormente, as regras para restituição e complementação do imposto estavam previstas na Instrução Normativa nº 16/2019, revogada a partir de 01.09.2026."
+        ],
+        "vigencia": "Efeitos a partir de 01.09.2026",
+        "plano_de_acao": [
+          "**Compliance / Fiscal:** Acompanhar vigência e impactos tributários diretos da Instrução Normativa SEEC nº 7/2026.",
+          "**Sistemas / TI Fiscal:** Validar se há necessidade de atualização cadastral ou parametrização no ERP."
+        ]
+      }
+    ],
+    "noticias": [
+      {
+        "titulo": "Governo quer apresentar alíquotas do Imposto Seletivo por medida provisória",
+        "corpo_paragrafos": [
+          "O jornal VALOR ECONÔMICO afirma, em reportagem nesta segunda-feira, que a equipe econômica decidiu que irá propor por medida provisória as alíquotas do Imposto Seletivo. A intenção é que, dessa forma, fique viabilizado o início da cobrança em 1º de janeiro. A Fazenda pretende enviar o texto junto com o Orçamento de 2027, no fim deste mês, ou, mais tardar, no início de setembro. A orientação, conforme o jornal, é preservar, em geral, a carga atualmente cobrada pelo IPI dos setores atingidos, numa tentativa de reduzir resistências empresariais e evitar aumento de tributação em ano eleitoral.",
+          "Produtos hoje sem IPI, como bens minerais, ainda têm alíquota em discussão e, se forem taxados, deverão ficar no menor patamar possível. Bets e cigarros serão, porém, uma exceção, com aplicação da maior alíquota possível. O governo considera esses setores fortemente prejudiciais à saúde e de alta capacidade contributiva. A ideia é retomar uma discussão sobre alíquotas mais elevadas sobre outros setores em 2027 ou 2028, caso Lula seja reeleito."
+        ],
+        "fonte": "Jota (19/08/2026)",
+        "link": "https://www.jota.info"
+      }
+    ]
+  }
+]

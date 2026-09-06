@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fast Shop - Portal do Ementário Fiscal</title>
+  <meta name="description" content="Portal Corporativo do Ementário Fiscal da Fast Shop. Repositório inteligente, busca global com planos de ação e gerador de boletins em PDF.">
+
+  <!-- Design & Fonts -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- SheetJS CDN (Biblioteca client-side para leitura de arquivos .xlsx sem servidor) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+  <!-- Dados Iniciais e Ativos Base64 para funcionamento 100% offline e no GitHub Pages -->
+  <script src="js/logo_b64.js"></script>
+  <script src="js/initial_db.js"></script>
+  <script src="js/excel_parser.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+
+  <!-- Top Institutional Header -->
+  <header class="header-portal">
+    <div class="brand-section">
+      <img id="nav-logo" class="brand-logo-img" src="assets/logo_fastshop.jpeg" alt="Fast Shop" onerror="if(window.FASTSHOP_LOGO_URI) this.src=window.FASTSHOP_LOGO_URI">
+      <div class="brand-titles">
+        <h1 style="margin: 0; font-size: 1.25rem;">Ementário Fiscal</h1>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-btn active" data-tab="search" id="tab-btn-search">
+        <span>🔍</span> Repositório & Busca
+      </button>
+      <button class="nav-btn" data-tab="new" id="tab-btn-new">
+        <span>➕</span> Novo Boletim
+      </button>
+      <button class="nav-btn" data-tab="viewer" id="tab-btn-viewer">
+        <span>📄</span> Visualizador PDF
+      </button>
+      <button class="nav-btn" data-tab="metrics" id="tab-btn-metrics">
+        <span>📊</span> Métricas
+      </button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button class="btn-secondary" id="btn-gemini-config" onclick="App.openGeminiModal()" title="Configurar Chave Gemini (Google AI Studio) para análise em tempo real" style="border-color: rgba(99, 102, 241, 0.4); color: #818cf8;">
+        <span>🔑</span> <span id="gemini-btn-label">IA Gemini</span>
+        <span id="gemini-status-indicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#9CA3AF; margin-left:4px;" title="Motor Heurístico Ativo"></span>
+      </button>
+      <button class="btn-secondary" onclick="App.exportFullDatabase()" title="Fazer backup de toda a base em formato JSON">
+        <span>📥</span> Backup JSON
+      </button>
+      <button class="btn-secondary" onclick="App.importFullDatabase()" title="Restaurar backup JSON">
+        <span>📤</span> Restaurar
+      </button>
+      <button class="btn-icon" id="btn-theme-toggle" title="Alternar Modo Escuro / Claro">
+        ☀️
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- ====================================================================
+         TAB 1: REPOSITÓRIO & BUSCA GLOBAL
+         ==================================================================== -->
+    <section class="tab-pane" id="tab-search" style="display: block;">
+      
+      <!-- Indicadores Rápidos -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-box">📚</div>
+          <div class="metric-info">
+            <h3>Boletins Catalogados</h3>
+            <div class="metric-value" id="metric-total-boletins">0</div>
+            <div class="metric-sub">Edições publicadas</div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box">⚖️</div>
+          <div class="metric-info">
+            <h3>Legislações Indexadas</h3>
+            <div class="metric-value" id="metric-total-itens">0</div>
+            <div class="metric-sub">Normas com análise e plano de ação</div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box">🏢</div>
+          <div class="metric-info">
+            <h3>Atos Estaduais (ICMS)</h3>
+            <div class="metric-value" id="metric-total-estaduais">0</div>
+            <div class="metric-sub">SEFAZ e convênios CONFAZ</div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box">📰</div>
+          <div class="metric-info">
+            <h3>Notícias & Clipping</h3>
+            <div class="metric-value" id="metric-total-noticias">0</div>
+            <div class="metric-sub">Jurisprudência e conjuntura</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Busca e Filtros Facetados -->
+      <div class="search-section">
+        <div class="search-bar-wrapper">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="search-input" 
+            class="search-input" 
+            placeholder="Pesquise por qualquer termo, número de lei, tributo, estado (ex: Ceará, Tabela 5.1.1, ICMS-ST, DIFAL, ERP, Sped)..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="filters-row">
+          <div class="filter-group">
+            <span class="filter-label">Esfera:</span>
+            <select id="filter-esfera" class="filter-select">
+              <option value="TODAS">Todas as Esferas</option>
+              <option value="FEDERAL">Federal</option>
+              <option value="ESTADUAL">Estadual</option>
+              <option value="MUNICIPAL">Municipal</option>
+              <option value="NOTÍCIA">Notícias</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Boletim:</span>
+            <select id="filter-boletim" class="filter-select">
+              <option value="TODOS">Todos os Boletins</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Órgão:</span>
+            <select id="filter-orgao" class="filter-select">
+              <option value="TODOS">Todos os Órgãos</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Impacto / Tributo:</span>
+            <select id="filter-impacto" class="filter-select">
+              <option value="TODOS">Todos os Impactos</option>
+            </select>
+          </div>
+
+          <div class="filter-chips">
+            <button class="chip-btn active" data-esfera="TODAS">Todos</button>
+            <button class="chip-btn" data-esfera="FEDERAL">Federais</button>
+            <button class="chip-btn" data-esfera="ESTADUAL">Estaduais</button>
+            <button class="chip-btn" data-esfera="MUNICIPAL">Municipais</button>
+            <button class="chip-btn" data-esfera="NOTÍCIA">Notícias</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cabeçalho dos Resultados e Grade de Cards -->
+      <div class="results-header">
+        <div class="results-count" id="results-count">Carregando acervo...</div>
+      </div>
+
+      <div class="results-grid" id="results-grid">
+        <!-- Renderizado dinamicamente por SearchEngine.renderResults -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: GERADOR / NOVO BOLETIM (ENTRADA SIMPLES ESTILO EXCEL)
+         ==================================================================== -->
+    <section class="tab-pane" id="tab-new" style="display: none;">
+      
+      <div class="search-section" style="margin-bottom: 1.5rem;">
+        <h2 style="font-family: var(--font-display); font-size: 1.35rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>📋</span> Elaborar Novo Boletim Fiscal
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Você pode <strong>importar a planilha Excel (.xlsx)</strong> ou <strong>preencher as colunas manualmente</strong> abaixo (exatamente como no Excel: Número, Semana, Tipo, Lei e Link). Ao clicar em <strong>Processar</strong>, o sistema sintetiza automaticamente as ementas com pontos em negrito e os planos de ação.
+        </p>
+      </div>
+
+      <!-- Cabeçalho do Boletim (Metadados Básicos) -->
+      <div class="gen-box" style="margin-bottom: 1.5rem;">
+        <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr; align-items: end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="draft-numero">Número do Boletim:</label>
+            <input type="text" id="draft-numero" class="form-input" placeholder="ex: 19.2026">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="draft-periodo">Semana / Período:</label>
+            <input type="text" id="draft-periodo" class="form-input" placeholder="ex: 11 a 17.05.2026">
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('excel-file-input').click()" style="width: 100%; justify-content: center;">
+              <span>📊</span> Carregar do Excel (.xlsx)
+            </button>
+            <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Grade de Entrada de Publicações (Estilo Planilha) -->
+      <div class="gen-box" style="margin-bottom: 1.5rem;">
+        <div class="gen-box-header">
+          <div>
+            <h2 style="font-size: 1.15rem;"><span>📑</span> Publicações a Incluir (Links & Classificação)</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Basta inserir o link oficial e definir se é Lei ou Notícia. O sistema determina automaticamente o nome da norma, órgão emissor, ementa e planos de ação.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn-secondary" onclick="App.openBatchPasteModal()" style="font-size: 0.8rem; padding: 0.45rem 0.85rem;">
+              <span>📋</span> Colar Múltiplos Links
+            </button>
+            <button type="button" class="btn-primary" onclick="App.addGridRow()" style="font-size: 0.8rem; padding: 0.45rem 0.85rem;">
+              <span>➕</span> Adicionar Linha
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela Interativa de Linhas -->
+        <div style="overflow-x: auto;">
+          <table class="excel-grid-table" id="excel-grid-table">
+            <thead>
+              <tr>
+                <th style="width: 50px; text-align: center;">#</th>
+                <th style="width: 170px;">Tipo</th>
+                <th>Link / URL Oficial da Publicação (identificação automática da norma pelo link)</th>
+                <th style="width: 50px; text-align: center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="excel-grid-tbody">
+              <!-- Linhas adicionadas dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Barra de Ação de Processamento -->
+        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="grid-row-count-badge">
+            0 linha(s) configurada(s)
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button type="button" class="btn-secondary" onclick="App.clearGridRows()">
+              <span>🗑️</span> Limpar Grade
+            </button>
+            <button type="button" class="btn-primary" id="btn-process-grid" onclick="App.processGridData()" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
+              <span>⚡</span> Processar Boletim (Gerar Ementas & Planos de Ação)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel de Pré-Visualização / Aprovação dos Resultados Gerados -->
+      <div class="gen-box" id="generated-preview-panel" style="display: none; border-color: rgba(16, 185, 129, 0.4);">
+        <div class="gen-box-header">
+          <div>
+            <h2 style="color: #34D399;"><span>✨</span> Ementário Gerado e Estruturado</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+              O sistema analisou os links, identificou os órgãos/esferas, destacou pontos-chave em negrito e formulou os planos de ação.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button type="button" class="btn-secondary" onclick="App.downloadDraftJson()">
+              <span>📥</span> Baixar JSON
+            </button>
+            <button type="button" class="btn-primary" onclick="App.saveGeneratedToRepository()" style="background: #10B981;">
+              <span>💾</span> Salvar no Repositório & Abrir PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="results-grid" id="generated-preview-cards">
+          <!-- Cards com ementas e planos de ação renderizados -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         TAB 3: VISUALIZADOR INSTITUCIONAL & IMPRESSÃO PDF
+         ==================================================================== -->
+    <section class="tab-pane" id="tab-viewer" style="display: none;">
+      <div class="viewer-toolbar">
+        <div class="viewer-meta">
+          <h3>Edição em Visualização:</h3>
+          <select id="viewer-boletim-select" class="filter-select" onchange="App.renderViewer()">
+            <!-- Populado dinamicamente -->
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn-secondary" onclick="App.downloadDraftJson()">
+            <span>📥</span> Baixar JSON da Edição
+          </button>
+          <button class="btn-primary" onclick="App.printBulletin()">
+            <span>🖨️</span> Imprimir / Salvar em PDF (A4 Oficial)
+          </button>
+          <button class="btn-secondary" onclick="App.openDeleteModal()" style="color: #F87171; border-color: rgba(248, 113, 113, 0.3);" title="Excluir este boletim do repositório">
+            <span>🗑️</span> Excluir Edição
+          </button>
+        </div>
+      </div>
+
+      <!-- Recipiente das Páginas A4 Milimetricamente Diagramadas -->
+      <div class="pdf-preview-container" id="pdf-preview-container">
+        <!-- Renderizado dinamicamente por App.renderViewer() -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 4: MÉTRICAS E ESTATÍSTICAS
+         ==================================================================== -->
+    <section class="tab-pane" id="tab-metrics" style="display: none;">
+      <div class="search-section">
+        <h2 style="font-family: var(--font-display); font-size: 1.35rem; margin-bottom: 0.5rem;">
+          Painel Estatístico do Ementário Fiscal
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+          Mapeamento do volume regulatório tributário processado pela equipe de Planejamento Fiscal da Fast Shop.
+        </p>
+      </div>
+
+      <div id="metrics-detailed-content">
+        <!-- Populado dinamicamente por App.renderDetailedMetrics() -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL DE COLAR LINKS EM LOTE (ESTILO EXCEL)
+       ==================================================================== -->
+  <div class="modal-overlay" id="batch-paste-modal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>📋</span> Colar Múltiplos Links / Leis
+        </h3>
+        <button class="btn-close-modal" onclick="App.closeBatchPasteModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+          Cole os links das publicações oficiais ou notícias (um link por linha). Se desejar, informe o Tipo após ponto-e-vírgula ou TAB (ex: <code>https://...; Notícia</code>):
+        </p>
+        <textarea 
+          id="batch-paste-textarea" 
+          class="form-textarea" 
+          style="min-height: 180px; font-family: monospace; font-size: 0.85rem;" 
+          placeholder="https://legislacao.fazenda.sp.gov.br/Paginas/RC32898_2025.aspx&#10;https://sefazlegis.sefaz.ce.gov.br/api/openFile?id=...&#10;https://jota.info/tributos-e-empresas/...; Notícia"
+        ></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="App.closeBatchPasteModal()">Cancelar</button>
+        <button type="button" class="btn-primary" onclick="App.applyBatchPaste()">
+          <span>➕</span> Inserir Linhas na Grade
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE BOLETIM
+       ==================================================================== -->
+  <div class="modal-overlay" id="delete-boletim-modal">
+    <div class="modal-box" style="max-width: 500px; border-color: rgba(220, 38, 38, 0.4);">
+      <div class="modal-header">
+        <h3 style="color: #F87171; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚠️</span> Excluir Boletim
+        </h3>
+        <button class="btn-close-modal" onclick="App.closeDeleteModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <p style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-primary);">
+          Você tem certeza que deseja excluir o <strong id="delete-modal-boletim-title">Boletim</strong>?
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.45;">
+          Esta ação removerá definitivamente todas as legislações, ementas e notícias desta edição do seu repositório local.
+        </p>
+        
+        <label class="form-label" for="delete-confirm-input">
+          Para confirmar a exclusão, digite a palavra <span style="color: #F87171; font-weight: bold; background: rgba(220, 38, 38, 0.1); padding: 2px 6px; border-radius: 4px;">EXCLUIR</span> abaixo:
+        </label>
+        <input 
+          type="text" 
+          id="delete-confirm-input" 
+          class="form-input" 
+          placeholder="Digite EXCLUIR para habilitar o botão" 
+          autocomplete="off"
+        >
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="App.closeDeleteModal()">Cancelar</button>
+        <button type="button" class="btn-danger" id="btn-confirm-delete" onclick="App.confirmDeleteBoletim()" disabled>
+          <span>🗑️</span> Confirmar Exclusão
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE CONFIGURAÇÃO DA CHAVE GEMINI (GOOGLE AI STUDIO)
+       ==================================================================== -->
+  <div class="modal-overlay" id="gemini-key-modal">
+    <div class="modal-box" style="max-width: 580px; border-color: rgba(99, 102, 241, 0.4);">
+      <div class="modal-header">
+        <h3 style="color: #818CF8; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🔑</span> Conexão IA Gemini (Google AI Studio)
+        </h3>
+        <button class="btn-close-modal" onclick="App.closeGeminiModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+          <strong style="color: #818CF8;">Como funciona no Portal Web / GitHub Pages?</strong><br>
+          Como o site roda 100% no seu navegador sem servidor intermediário, você pode fornecer opcionalmente uma chave gratuita da <strong>Google AI Studio</strong> para que o Gemini 2.5 Flash analise os links em tempo real.<br>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Sua chave fica armazenada com total privacidade apenas no <code>localStorage</code> do seu navegador.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="gemini-api-key-input">
+            Chave de API do Gemini (Google AI Studio):
+          </label>
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              id="gemini-api-key-input" 
+              class="form-input" 
+              placeholder="Cole sua chave aqui (ex: AIzaSy...)" 
+              autocomplete="off"
+              style="padding-right: 2.5rem;"
+            >
+            <button 
+              type="button" 
+              id="btn-toggle-key-visibility" 
+              onclick="App.toggleKeyVisibility()"
+              style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem;"
+              title="Mostrar/Ocultar chave"
+            >👁️</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: #818CF8; text-decoration: underline;">
+            Obter chave gratuita no Google AI Studio ↗
+          </a>
+          <div id="gemini-modal-status" style="color: var(--text-muted); font-weight: 500;">
+            Status: Não configurada
+          </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-muted);">
+          💡 <strong>Não possui chave?</strong> Não se preocupe! O site já possui um <strong>Motor Heurístico Tributário integrado</strong> que reconhece automaticamente normas da SEFAZ SP, SEFAZ CE, CONFAZ, RFB, etc., sem nenhum custo e 100% offline.
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn-secondary" id="btn-remove-gemini-key" onclick="App.clearGeminiKey()" style="color: #F87171; border-color: rgba(220, 38, 38, 0.3);">
+          Remover Chave
+        </button>
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn-secondary" onclick="App.closeGeminiModal()">Fechar</button>
+          <button type="button" class="btn-primary" onclick="App.saveGeminiKey()">
+            <span>💾</span> Salvar Chave
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE EDIÇÃO DE PUBLICAÇÃO (LEI OU NOTÍCIA)
+       ==================================================================== -->
+  <div class="modal-overlay" id="edit-item-modal">
+    <div class="modal-box" style="max-width: 800px; max-height: 90vh; overflow-y: auto; border-color: rgba(99, 102, 241, 0.4);">
+      <div class="modal-header">
+        <h3 style="color: #818CF8; display: flex; align-items: center; gap: 0.5rem;">
+          <span>✏️</span> Editar Publicação — <span id="edit-modal-boletim-badge" style="background: rgba(99, 102, 241, 0.15); padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">Boletim</span>
+        </h3>
+        <button class="btn-close-modal" onclick="App.closeEditItemModal()">✕</button>
+      </div>
+
+      <!-- Campos ocultos de controle -->
+      <input type="hidden" id="edit-tipo-registro">
+      <input type="hidden" id="edit-boletim-num">
+      <input type="hidden" id="edit-item-index">
+
+      <!-- Formulário de Edição para Legislação / Ato Normativo -->
+      <div id="edit-law-container">
+        <div class="form-group">
+          <label class="form-label" for="edit-titulo">Título Completo da Legislação:</label>
+          <input type="text" id="edit-titulo" class="form-input">
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-norma">Norma / Nome do Ato:</label>
+            <input type="text" id="edit-norma" class="form-input" placeholder="ex: Resposta à Consulta Tributária nº 32898/2025">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-orgao">Órgão Emissor:</label>
+            <input type="text" id="edit-orgao" class="form-input" placeholder="ex: SEFAZ SP, SEFAZ DF, CONFAZ">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-esfera">Esfera:</label>
+            <select id="edit-esfera" class="form-select">
+              <option value="ESTADUAL">ESTADUAL</option>
+              <option value="FEDERAL">FEDERAL</option>
+              <option value="MUNICIPAL">MUNICIPAL</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-impacto">Tributo / Impacto:</label>
+            <input type="text" id="edit-impacto" class="form-input" placeholder="ex: ICMS / Consultas">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-area">Área Impactada:</label>
+            <input type="text" id="edit-area" class="form-input" placeholder="ex: Indiretos, Jurídico">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-vigencia">Vigência / Publicação:</label>
+            <input type="text" id="edit-vigencia" class="form-input" placeholder="ex: Efeitos a partir da publicação.">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-resumo-tabela">Resumo Síntese (Tabela de Abertura):</label>
+          <input type="text" id="edit-resumo-tabela" class="form-input" placeholder="Breve síntese de 1 frase para a tabela inicial">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-link">Link / URL Oficial:</label>
+          <input type="text" id="edit-link" class="form-input" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-corpo">
+            Texto Técnico / Parágrafos da Ementa:
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Separe parágrafos com uma linha em branco. Destaques: <code>**palavra**</code>)</span>
+          </label>
+          <textarea id="edit-corpo" class="form-textarea" style="min-height: 140px; font-size: 0.875rem;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-plano-acao">
+            Planos de Ação Sugeridos:
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Uma ação por linha. Ex: **Sistemas / TI:** Revisar parametrização no ERP)</span>
+          </label>
+          <textarea id="edit-plano-acao" class="form-textarea" style="min-height: 110px; font-size: 0.875rem;"></textarea>
+        </div>
+      </div>
+
+      <!-- Formulário de Edição para Notícia -->
+      <div id="edit-news-container" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="edit-news-titulo">Título / Manchete da Notícia:</label>
+          <input type="text" id="edit-news-titulo" class="form-input">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-news-fonte">Fonte / Data:</label>
+            <input type="text" id="edit-news-fonte" class="form-input" placeholder="ex: JOTA Tributário (06/09/2026)">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-news-link">Link da Matéria:</label>
+            <input type="text" id="edit-news-link" class="form-input" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-news-corpo">
+            Texto da Matéria / Síntese:
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Separe parágrafos com uma linha em branco. Destaques: <code>**palavra**</code>)</span>
+          </label>
+          <textarea id="edit-news-corpo" class="form-textarea" style="min-height: 140px; font-size: 0.875rem;"></textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <button type="button" class="btn-secondary" onclick="App.closeEditItemModal()">Cancelar</button>
+        <button type="button" class="btn-primary" onclick="App.saveEditedItem()">
+          <span>💾</span> Salvar Alterações
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       TELA / OVERLAY DE PROCESSAMENTO ("PESQUISANDO...")
+       ==================================================================== -->
+  <div class="modal-overlay" id="processing-overlay" style="z-index: 99999;">
+    <div class="modal-box" style="max-width: 490px; text-align: center; padding: 2.5rem 2rem; border-color: rgba(99, 102, 241, 0.4); background: var(--bg-surface-elevated); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
+      
+      <!-- Spinner animado corporativo -->
+      <div style="position: relative; width: 70px; height: 70px; margin: 0 auto 1.5rem auto;">
+        <div class="processing-spinner"></div>
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+          ⚖️
+        </div>
+      </div>
+
+      <h3 id="processing-title" style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+        Pesquisando & Analisando Legislação...
+      </h3>
+      
+      <p id="processing-subtitle" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">
+        Identificando normas, órgãos emissores e gerando ementas com pontos em negrito e planos de ação.
+      </p>
+
+      <!-- Indicadores de Etapas em Tempo Real -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; text-align: left; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div id="proc-step-1" style="display: flex; align-items: center; gap: 0.6rem; color: var(--text-primary);">
+          <span id="proc-icon-1" style="color: #10B981; font-weight: bold;">✓</span>
+          <span>Leitura de URLs e mapeamento de atos oficiais</span>
+        </div>
+        <div id="proc-step-2" style="display: flex; align-items: center; gap: 0.6rem; color: #818CF8; font-weight: 600;">
+          <span id="proc-icon-2">⏳</span>
+          <span id="proc-step-2-text">Consultando inteligência fiscal em tempo real...</span>
+        </div>
+        <div id="proc-step-3" style="display: flex; align-items: center; gap: 0.6rem; color: var(--text-muted);">
+          <span id="proc-icon-3">○</span>
+          <span>Estruturando ementas, pontos-chave e planos de ação</span>
+        </div>
+      </div>
+
+      <div id="proc-footer-note" style="margin-top: 1.25rem; font-size: 0.75rem; color: var(--text-muted);">
+        Aguarde alguns instantes enquanto o ementário é consolidado.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
