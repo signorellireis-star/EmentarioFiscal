@@ -26,6 +26,117 @@ window.App = {
     generatedBoletim: null
   },
 
+  // =========================================================================
+  // CLIENTE DE BANCO EM NUVEM SUPABASE (SINCRONIZAÇÃO EM TEMPO REAL)
+  // =========================================================================
+  supabase: {
+    url: 'https://pkognzyrwisqwoqzpeus.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrb2duenlyd2lzcXdvcXpwZXVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MjA4MzYsImV4cCI6MjEwNDI5NjgzNn0.PlOltgppl3dJ4hddk8Rmjy7WiJgil4EsupKNwOgvras',
+
+    async fetchBoletins() {
+      try {
+        const res = await fetch(`${this.url}/rest/v1/boletins?select=*&order=numero_boletim.desc`, {
+          headers: {
+            'apikey': this.anonKey,
+            'Authorization': `Bearer ${this.anonKey}`
+          }
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          if (Array.isArray(rows) && rows.length > 0) {
+            return rows.map(r => ({
+              numero_boletim: r.numero_boletim,
+              periodo: r.periodo || '',
+              departamento: r.departamento || 'Fiscal',
+              subtitulo: r.subtitulo || 'Ementário Fiscal',
+              equipe: r.equipe || '',
+              itens: r.itens || [],
+              noticias: r.noticias || []
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('[Supabase] Erro ao buscar dados em nuvem:', err);
+      }
+      return null;
+    },
+
+    async upsertBoletim(boletim) {
+      if (!boletim || !boletim.numero_boletim) return;
+      try {
+        const payload = {
+          numero_boletim: String(boletim.numero_boletim),
+          periodo: boletim.periodo || '',
+          departamento: boletim.departamento || 'Fiscal',
+          subtitulo: boletim.subtitulo || 'Ementário Fiscal',
+          equipe: boletim.equipe || '',
+          itens: boletim.itens || [],
+          noticias: boletim.noticias || [],
+          updated_at: new Date().toISOString()
+        };
+
+        await fetch(`${this.url}/rest/v1/boletins`, {
+          method: 'POST',
+          headers: {
+            'apikey': this.anonKey,
+            'Authorization': `Bearer ${this.anonKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify(payload)
+        });
+        console.log(`[Supabase] Boletim ${boletim.numero_boletim} sincronizado com a nuvem.`);
+      } catch (err) {
+        console.error('[Supabase] Erro ao salvar na nuvem:', err);
+      }
+    },
+
+    async deleteBoletim(num) {
+      if (!num) return;
+      try {
+        await fetch(`${this.url}/rest/v1/boletins?numero_boletim=eq.${encodeURIComponent(String(num))}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': this.anonKey,
+            'Authorization': `Bearer ${this.anonKey}`
+          }
+        });
+        console.log(`[Supabase] Boletim ${num} excluído da nuvem.`);
+      } catch (err) {
+        console.error('[Supabase] Erro ao excluir na nuvem:', err);
+      }
+    }
+  },
+
+  updateCloudBadge(status, label) {
+    const badge = document.getElementById('cloud-status-badge');
+    const labelEl = document.getElementById('cloud-status-label');
+    if (!badge) return;
+    badge.className = `cloud-status-badge ${status}`;
+    if (labelEl && label) labelEl.textContent = label;
+  },
+
+  async syncFromSupabase() {
+    this.updateCloudBadge('syncing', 'Sincronizando...');
+    const cloudBoletins = await this.supabase.fetchBoletins();
+    if (cloudBoletins && cloudBoletins.length > 0) {
+      this.state.boletins = cloudBoletins;
+      localStorage.setItem('fastshop_boletins_db', JSON.stringify(this.state.boletins));
+      this.rebuildSearchIndex();
+      this.updateMetrics();
+      this.populateFilterDropdowns();
+      this.runSearch();
+
+      if (!this.state.activeBoletimNum || !this.state.boletins.some(b => b.numero_boletim === this.state.activeBoletimNum)) {
+        this.state.activeBoletimNum = this.state.boletins[0].numero_boletim;
+        this.renderViewer();
+      }
+      this.updateCloudBadge('', 'Nuvem Ativa');
+    } else {
+      this.updateCloudBadge('', 'Nuvem Ativa');
+    }
+  },
+
   /**
    * Inicialização da aplicação
    */
@@ -46,6 +157,9 @@ window.App = {
       this.state.activeBoletimNum = this.state.boletins[0].numero_boletim;
       this.renderViewer();
     }
+
+    // Sincronização automática transparente com o Supabase em Nuvem
+    this.syncFromSupabase();
   },
 
   /**
@@ -87,13 +201,20 @@ window.App = {
   },
 
   /**
-   * Salva o estado atual no LocalStorage
+   * Salva o estado atual no LocalStorage e no Supabase (Nuvem)
    */
-  saveDatabase() {
+  saveDatabase(targetBoletim = null) {
     localStorage.setItem('fastshop_boletins_db', JSON.stringify(this.state.boletins));
     this.rebuildSearchIndex();
     this.updateMetrics();
     this.populateFilterDropdowns();
+
+    // Sincronização em nuvem
+    if (targetBoletim) {
+      this.supabase.upsertBoletim(targetBoletim);
+    } else {
+      (this.state.boletins || []).forEach(b => this.supabase.upsertBoletim(b));
+    }
   },
 
   /**
@@ -1066,6 +1187,7 @@ window.App = {
 
     this.state.boletins = this.state.boletins.filter(b => b.numero_boletim !== target);
     this.saveDatabase();
+    this.supabase.deleteBoletim(target);
 
     this.state.activeBoletimNum = this.state.boletins.length > 0 ? this.state.boletins[0].numero_boletim : null;
     this.populateFilterDropdowns();
@@ -1281,7 +1403,7 @@ window.App = {
     });
 
     // Persiste no LocalStorage e atualiza todos os componentes
-    this.saveDatabase();
+    this.saveDatabase(mainBol);
     this.populateFilterDropdowns();
     this.runSearch();
 
