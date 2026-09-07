@@ -52,9 +52,9 @@
         <span class="cloud-status-dot"></span>
         <span id="cloud-status-label">Nuvem Ativa</span>
       </div>
-      <button class="btn-secondary" id="btn-gemini-config" onclick="App.openGeminiModal()" title="Configurar Chave Gemini (Google AI Studio) para análise em tempo real" style="border-color: rgba(99, 102, 241, 0.4); color: #818cf8;">
-        <span>🔑</span> <span id="gemini-btn-label">IA Gemini</span>
-        <span id="gemini-status-indicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#9CA3AF; margin-left:4px;" title="Motor Heurístico Ativo"></span>
+      <button class="btn-secondary" id="btn-gemini-config" onclick="App.openGeminiModal()" title="Configurar Token de API de IA (Google AI Studio ou OpenAI) para análise em tempo real" style="border-color: rgba(99, 102, 241, 0.4); color: #818cf8;">
+        <span>🔑</span> <span id="gemini-btn-label">Token de IA</span>
+        <span id="gemini-status-indicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#9CA3AF; margin-left:4px;" title="Motor Heurístico Local Ativo"></span>
       </button>
       <button class="btn-secondary" onclick="App.exportFullDatabase()" title="Fazer backup de toda a base em formato JSON">
         <span>📥</span> Backup JSON
@@ -256,7 +256,7 @@
             0 linha(s) configurada(s)
           </div>
           <div style="display: flex; gap: 0.75rem;">
-            <button type="button" class="btn-secondary" onclick="App.clearGridRows()">
+            <button type="button" class="btn-secondary" id="btn-clear-grid" onclick="App.clearGridRows()">
               <span>🗑️</span> Limpar Grade
             </button>
             <button type="button" class="btn-primary" id="btn-process-grid" onclick="App.processGridData()" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
@@ -417,34 +417,36 @@
   </div>
 
   <!-- ====================================================================
-       MODAL DE CONFIGURAÇÃO DA CHAVE GEMINI (GOOGLE AI STUDIO)
+       MODAL DE CONFIGURAÇÃO DE TOKEN DE API DE IA
        ==================================================================== -->
   <div class="modal-overlay" id="gemini-key-modal">
-    <div class="modal-box" style="max-width: 580px; border-color: rgba(99, 102, 241, 0.4);">
+    <div class="modal-box" style="max-width: 600px; border-color: rgba(99, 102, 241, 0.4);">
       <div class="modal-header">
         <h3 style="color: #818CF8; display: flex; align-items: center; gap: 0.5rem;">
-          <span>🔑</span> Conexão IA Gemini (Google AI Studio)
+          <span>🔑</span> Conectar Token de API (Inteligência Artificial)
         </h3>
         <button class="btn-close-modal" onclick="App.closeGeminiModal()">✕</button>
       </div>
 
       <div style="margin-bottom: 1.25rem;">
         <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
-          <strong style="color: #818CF8;">Como funciona no Portal Web / GitHub Pages?</strong><br>
-          Como o site roda 100% no seu navegador sem servidor intermediário, você pode fornecer opcionalmente uma chave gratuita da <strong>Google AI Studio</strong> para que o Gemini 2.5 Flash analise os links em tempo real.<br>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Sua chave fica armazenada com total privacidade apenas no <code>localStorage</code> do seu navegador.</span>
+          <strong style="color: #818CF8;">Como funciona no Portal Web?</strong><br>
+          Para ler a íntegra oficial dos links e redigir sínteses e planos de ação automáticos, você pode fornecer um Token de API pessoal. O sistema suporta os modelos mais rápidos e de menor custo:<br>
+          • <strong>Google AI Studio:</strong> Gemini 1.5 / 2.0 Flash (100% gratuito)<br>
+          • <strong>OpenAI:</strong> GPT-4o-mini (custo mínimo de frações de centavos)<br>
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 4px;">🔒 <strong>Privacidade Total:</strong> Seu token é salvo exclusivamente no <code>localStorage</code> do seu navegador. Ele nunca é enviado para o GitHub nem compartilhado com outros usuários.</span>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="gemini-api-key-input">
-            Chave de API do Gemini (Google AI Studio):
+            Cole seu Token de API (Google AI ou OpenAI):
           </label>
           <div style="position: relative;">
             <input 
               type="password" 
               id="gemini-api-key-input" 
               class="form-input" 
-              placeholder="Cole sua chave aqui (ex: AIzaSy...)" 
+              placeholder="ex: AIzaSy... (Google) ou sk-... (OpenAI)" 
               autocomplete="off"
               style="padding-right: 2.5rem;"
             >
@@ -453,33 +455,46 @@
               id="btn-toggle-key-visibility" 
               onclick="App.toggleKeyVisibility()"
               style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem;"
-              title="Mostrar/Ocultar chave"
+              title="Mostrar/Ocultar token"
             >👁️</button>
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: #818CF8; text-decoration: underline;">
-            Obter chave gratuita no Google AI Studio ↗
-          </a>
-          <div id="gemini-modal-status" style="color: var(--text-muted); font-weight: 500;">
-            Status: Não configurada
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; margin-top: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Onde obter seu token:</span>
+            <div id="gemini-modal-status" style="color: var(--text-muted); font-weight: 500;">
+              Status: Não configurado
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: #818CF8; text-decoration: underline;">
+              Obter token gratuito no Google AI Studio ↗
+            </a>
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" style="color: #10B981; text-decoration: underline;">
+              Obter token na OpenAI (ChatGPT) ↗
+            </a>
           </div>
         </div>
 
         <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-muted);">
-          💡 <strong>Não possui chave?</strong> Não se preocupe! O site já possui um <strong>Motor Heurístico Tributário integrado</strong> que reconhece automaticamente normas da SEFAZ SP, SEFAZ CE, CONFAZ, RFB, etc., sem nenhum custo e 100% offline.
+          💡 <strong>Não possui token de IA?</strong> Não se preocupe! O portal conta com um <strong>Motor Heurístico integrado 100% gratuito</strong> que identifica órgãos e normas automaticamente pela URL, permitindo que você complemente o resumo manualmente pelo botão <em>✏️ Editar</em>.
         </div>
+
+        <div id="gemini-test-result" style="margin-top: 0.75rem; font-size: 0.82rem; padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); display: none;"></div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
         <button type="button" class="btn-secondary" id="btn-remove-gemini-key" onclick="App.clearGeminiKey()" style="color: #F87171; border-color: rgba(220, 38, 38, 0.3);">
-          Remover Chave
+          Remover Token
         </button>
         <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn-secondary" id="btn-test-gemini-key" onclick="App.testApiKey()" style="color: #60A5FA; border-color: rgba(96, 165, 250, 0.4);">
+            <span>🧪</span> Testar Conexão
+          </button>
           <button type="button" class="btn-secondary" onclick="App.closeGeminiModal()">Fechar</button>
           <button type="button" class="btn-primary" onclick="App.saveGeminiKey()">
-            <span>💾</span> Salvar Chave
+            <span>💾</span> Salvar Token
           </button>
         </div>
       </div>
@@ -563,6 +578,14 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label" for="edit-entendimento">
+            💡 Entendimento do Assunto (Visão Executiva / Linguagem Simples para Gestão):
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Explicação didática para gestores e lideranças. Destaques: <code>**palavra**</code>)</span>
+          </label>
+          <textarea id="edit-entendimento" class="form-textarea" style="min-height: 100px; font-size: 0.875rem;" placeholder="Explique de forma simples o que esta norma altera no mundo real, o impacto na operação e o que a liderança precisa saber..."></textarea>
+        </div>
+
+        <div class="form-group">
           <label class="form-label" for="edit-plano-acao">
             Planos de Ação Sugeridos:
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Uma ação por linha. Ex: **Sistemas / TI:** Revisar parametrização no ERP)</span>
@@ -595,6 +618,13 @@
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Separe parágrafos com uma linha em branco. Destaques: <code>**palavra**</code>)</span>
           </label>
           <textarea id="edit-news-corpo" class="form-textarea" style="min-height: 140px; font-size: 0.875rem;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-news-entendimento">
+            💡 Entendimento do Assunto (Visão Executiva):
+          </label>
+          <textarea id="edit-news-entendimento" class="form-textarea" style="min-height: 90px; font-size: 0.875rem;" placeholder="Impacto prático e visão executiva para liderança..."></textarea>
         </div>
       </div>
 
@@ -647,6 +677,39 @@
 
       <div id="proc-footer-note" style="margin-top: 1.25rem; font-size: 0.75rem; color: var(--text-muted);">
         Aguarde alguns instantes enquanto o ementário é consolidado.
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE AVISO: TOKEN DE API DE IA NÃO CONFIGURADO
+       ==================================================================== -->
+  <div class="modal-overlay" id="gemini-missing-modal" style="z-index: 100000;">
+    <div class="modal-box" style="max-width: 520px; border-color: rgba(245, 158, 11, 0.5); background: var(--bg-surface-elevated); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
+      <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #fbbf24; font-size: 1.15rem; margin: 0; font-weight: 700;">
+          <span>⚠️</span> Leitura Profunda de Links (Token de IA)
+        </h3>
+        <button class="modal-close-btn" onclick="App.closeGeminiMissingModal()" style="background: none; border: none; font-size: 1.25rem; color: var(--text-muted); cursor: pointer;">✕</button>
+      </div>
+      
+      <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+        Para que o sistema acesse a internet, <strong>leia a íntegra oficial do texto</strong> no site do órgão (CONFAZ, SEFAZ, DOU) e redija o <strong>resumo executivo e plano de ação real</strong>, é necessário conectar um Token de API de IA (Google AI ou OpenAI).
+      </p>
+
+      <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 0.85rem; margin-bottom: 1.25rem;">
+        <p style="font-size: 0.82rem; color: #fbbf24; margin: 0; line-height: 1.5;">
+          ℹ️ <strong>Sem o Token de IA ativado:</strong> O sistema identificará perfeitamente o número e órgão oficial da norma pela URL (ex: <em>Convênio ICMS nº 10/2026 - CONFAZ</em>), mas o resumo interno ficará como <em>[Pendente de Resumo]</em> para você preencher manualmente clicando no botão <strong>✏️ Editar</strong>.
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="App.proceedWithoutGemini()" style="font-size: 0.85rem;">
+          Prosseguir com Preenchimento Manual
+        </button>
+        <button type="button" class="btn-primary" onclick="App.openGeminiModalFromWarning()" style="background: #4f46e5; border-color: #6366f1; font-size: 0.85rem;">
+          <span>🔑</span> Configurar Token de API
+        </button>
       </div>
     </div>
   </div>
