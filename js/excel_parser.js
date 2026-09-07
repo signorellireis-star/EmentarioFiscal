@@ -508,13 +508,14 @@ window.TaxSynthesizer = {
       const matchYearInPath = url.match(/\/(\d{4})\//);
       const defaultYear = matchYearInPath ? matchYearInPath[1] : '2026';
 
-      if (urlLower.includes("convenio")) {
+      if (urlLower.includes("convenio") || urlLower.includes("/cv") || url.match(/\/cv\d+/i)) {
         const m = url.match(/convenio[_\s-]?icms[_\s-]?(\d+)[_\/-](\d{2,4})/i) 
                || url.match(/convenio[_\s-]?(\d+)[_\/-](\d{2,4})/i)
+               || url.match(/cv[_\s-]?(\d+)[_\/-](\d{2,4})/i)
                || url.match(/convenio[_\s-]?icms[_\s-]?(\d+)/i)
                || url.match(/convenio[_\s-]?(\d+)/i);
         if (m) {
-          const num = m[1];
+          const num = String(parseInt(m[1], 10));
           let ano = m[2] || defaultYear;
           if (ano.length === 2) ano = '20' + ano;
           norma = `Convênio ICMS nº ${num}/${ano}`;
@@ -526,7 +527,7 @@ window.TaxSynthesizer = {
                || url.match(/ajuste[_\s-]?(\d+)[_\/-](\d{2,4})/i)
                || url.match(/ajuste[_\s-]?sinief[_\s-]?(\d+)/i);
         if (m) {
-          const num = m[1];
+          const num = String(parseInt(m[1], 10));
           let ano = m[2] || defaultYear;
           if (ano.length === 2) ano = '20' + ano;
           norma = `Ajuste SINIEF nº ${num}/${ano}`;
@@ -670,6 +671,16 @@ window.TaxSynthesizer = {
         planoAcao = [
           `**Compliance / Tributário:** Analisar os impactos da ${norma} e definir adequações nos procedimentos fiscais da companhia.`
         ];
+      }
+    }
+
+    // Regra Universal de Ementa / Caput: Se houver texto extraído da página oficial, detecta dinamicamente a ementa
+    if (scrapedData && (scrapedData.content || scrapedData.title)) {
+      const fullText = `${scrapedData.title || ''}\n${scrapedData.content || ''}`;
+      const matchEmenta = fullText.match(/(?:Prorroga|Altera|Revoga|Regulamenta|Dispõe sobre|Concede|Institui|Estabelece)\s+[^.\n\r]{15,350}\.?/i);
+      if (matchEmenta && (!resumoTabela || resumoTabela.startsWith('[Pendente') || resumoTabela.startsWith('[Resumo'))) {
+        resumoTabela = matchEmenta[0].trim();
+        if (!resumoTabela.endsWith('.')) resumoTabela += '.';
       }
     }
 
@@ -828,18 +839,28 @@ Atenção: Os títulos e conteúdos oficiais extraídos diretamente das páginas
 LINKS E CONTEÚDOS A PROCESSAR:
 ${itemsSummary}
 
-REQUISITOS OBRIGATÓRIOS:
+REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
 1. Para cada link classificado como 'Lei':
-   - Identifique com exatidão o Nome da Norma (ex: 'Resposta à Consulta Tributária nº 32898/2025', 'Portaria SRE nº 35/2026', 'Decreto Estadual nº 68.000/2025', etc.).
+   - Identifique com exatidão o Nome da Norma (ex: 'Convênio ICMS nº 10/2026', 'Resposta à Consulta Tributária nº 32898/2025', 'Portaria SRE nº 35/2026', 'Decreto Estadual nº 68.000/2025', etc.).
+   - IDENTIFICAÇÃO OBRIGATÓRIA DA LEI DE BASE / NORMA ALTERADA OU PRORROGADA (CAPUT):
+     Se a norma prorrogar, alterar, revogar ou regulamentar uma LEI, CONVÊNIO OU REGULAMENTO ORIGINÁRIO DE BASE (exemplo fundamental: o 'Convênio ICMS nº 10/2026' prorroga e altera o 'Convênio ICMS nº 52/1991', que concede redução da base de cálculo em equipamentos industriais e implementos agrícolas):
+     (a) É TERMINANTEMENTE OBRIGATÓRIO citar expressamente o número e ano da lei originária (ex: Convênio ICMS nº 52/1991) no 'titulo', no 'norma', no 'resumo_tabela', no 'corpo_paragrafos' (1º parágrafo) e no 'entendimento_assunto';
+     (b) Explique exatamente qual é o benefício fiscal ou assunto central da lei originária (ex: "redução da base de cálculo do ICMS em operações com equipamentos industriais e implementos agrícolas") e o novo prazo/vigência;
+     (c) NUNCA omita a norma originária alterada! Resumos fiscais que não citam a lei de base são incompletos e reprovados pelo time fiscal.
    - Esfera: FEDERAL, ESTADUAL ou MUNICIPAL.
    - UF: sigla do estado (SP, CE, DF, RJ, ES, etc.) ou BR para Federal.
    - Órgão emissor: SEFAZ SP, SEFAZ CE, SEFAZ DF, CONFAZ, RFB, etc.
    - Impacto: ICMS, PIS/COFINS, ICMS-ST, ISS, etc.
    - Área impactada: Indiretos, Jurídico, TI Fiscal, Cadastros, etc.
-   - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**).
-   - Entendimento do Assunto (Visão Executiva): 1 parágrafo claro, didático e sem juridiquês voltado para um Gestor ou Diretor que não domina a área tributária. Explique: (a) O que é isso em palavras simples no mundo real; (b) Como afeta o dia a dia da empresa (ERP, faturamento, preço, compras ou compliance); (c) O que a liderança precisa saber para orientar sua equipe.
+   - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**):
+     * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas).
+     * 2º Parágrafo: Efeitos operacionais, datas e prazos de vigência e obrigações para os contribuintes.
+   - Entendimento do Assunto (Visão Executiva): 1 parágrafo claro, didático e sem juridiquês voltado para um Gestor ou Diretor de negócio que não domina a área fiscal. Explique de forma simples:
+     (a) O que é isso em palavras simples no mundo real e por que essa lei é tão importante (ex: preservação da carga tributária reduzida do Convênio 52/91);
+     (b) Como afeta o dia a dia da empresa (ERP, matriz de alíquotas, cadastro de NCMs, compras B2B ou faturamento);
+     (c) O que a liderança precisa saber para orientar sua equipe.
    - Plano de Ação: de 2 a 3 ações práticas direcionadas para o varejo (TI Fiscal/ERP, Parametrização, Tributário/Compliance, Logística/Comercial).
-   - Vigência e Resumo em 1 linha para tabela de abertura.
+   - Vigência e Resumo em 1 linha para tabela de abertura (contendo obrigatoriamente a ação + norma alterada + benefício).
 2. Para cada link classificado como 'Notícia':
    - Título claro da manchete jurídica.
    - 2 parágrafos resumindo a tese jurídica e riscos com pontos-chave em negrito (**destaque**).
@@ -857,25 +878,25 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
   "itens": [
     {
       "numero": 1,
-      "esfera": "ESTADUAL",
-      "titulo": "1. SP - Resposta à Consulta Tributária nº 32898, de 2025 - SEFAZ SP",
+      "esfera": "FEDERAL",
+      "titulo": "1. BR - Convênio ICMS nº 10/2026 (Altera o Convênio ICMS nº 52/1991) - CONFAZ",
       "data_publicacao": "${new Date().toLocaleDateString('pt-BR')}",
-      "norma": "Resposta à Consulta Tributária nº 32898/2025",
+      "norma": "Convênio ICMS nº 10/2026 (altera Convênio ICMS nº 52/1991)",
       "link": "URL_ORIGINAL",
-      "orgao": "SEFAZ SP",
-      "resumo_tabela": "Resumo em 1 frase para a tabela inicial.",
-      "impacto": "ICMS / Consultas",
-      "area_impactada": "Indiretos",
+      "orgao": "CONFAZ",
+      "resumo_tabela": "Prorroga e altera o Convênio ICMS nº 52/1991, estendendo a redução da base de cálculo do ICMS nas operações com equipamentos industriais e implementos agrícolas.",
+      "impacto": "ICMS / Benefícios Fiscais",
+      "area_impactada": "Indiretos / TI Fiscal",
       "corpo_paragrafos": [
-        "Parágrafo 1 com **destaque em negrito**...",
-        "Parágrafo 2 com **destaque em negrito**..."
+        "O Conselho Nacional de Política Fazendária (**CONFAZ**) publicou o **Convênio ICMS nº 10/2026**, que **prorroga e altera o Convênio ICMS nº 52/1991**, mantendo o benefício fiscal de **redução da base de cálculo do ICMS** incidente sobre as saídas de **equipamentos industriais e implementos agrícolas**.",
+        "A prorrogação assegura a continuidade da aplicação das cargas tributárias reduzidas nas operações internas e interestaduais, evitando o encarecimento da cadeia de bens de capital e estabelecendo novos prazos de vigência para os setores contemplados nos Anexos I e II da norma originária."
       ],
-      "entendimento_assunto": "Explicação didática para gestores e diretores: o que muda na prática, sem termos difíceis.",
+      "entendimento_assunto": "A publicação preserva um dos incentivos fiscais mais tradicionais e relevantes do país (**Convênio ICMS 52/1991**), impedindo o aumento da carga de ICMS sobre máquinas e equipamentos. Para os gestores da Fast Shop, o impacto operacional exige validação das parametrizações no ERP para os NCMs correspondentes, garantindo que o faturamento continue aplicando as alíquotas efetivas favorecidas sem interrupção.",
       "plano_de_acao": [
-        "**TI Fiscal:** ...",
-        "**Tributário:** ..."
+        "**TI Fiscal / Sistemas:** Revisar no ERP as tabelas e vigências de redução de base de cálculo atreladas ao Convênio ICMS 52/1991 para evitar rejeições ou destaque indevido.",
+        "**Planejamento Tributário:** Acompanhar a ratificação e os decretos de internalização do Convênio 10/2026 nos regulamentos estaduais dos Estados com filiais da Fast Shop (SP, MG, RJ, etc.)."
       ],
-      "vigencia": "Efeitos a partir da publicação."
+      "vigencia": "Efeitos a partir da ratificação nacional."
     }
   ],
   "noticias": [
