@@ -29,6 +29,7 @@ window.SearchEngine = {
           impacto: item.impacto || '',
           area_impactada: item.area_impactada || '',
           corpo_paragrafos: item.corpo_paragrafos || [],
+          entendimento_assunto: item.entendimento_assunto || '',
           plano_de_acao: item.plano_de_acao || [],
           vigencia: item.vigencia || '',
           // Campo textual consolidado para busca rápida
@@ -42,6 +43,7 @@ window.SearchEngine = {
             item.impacto,
             item.area_impactada,
             (item.corpo_paragrafos || []).join(' '),
+            item.entendimento_assunto || '',
             (item.plano_de_acao || []).join(' '),
             item.vigencia
           ].join(' ').toLowerCase()
@@ -66,13 +68,15 @@ window.SearchEngine = {
           impacto: 'Conjuntura / Jurisprudência',
           area_impactada: 'Jurídico, Indiretos',
           corpo_paragrafos: noticia.corpo_paragrafos || [],
+          entendimento_assunto: noticia.entendimento_assunto || '',
           plano_de_acao: noticia.plano_de_acao || [],
           vigencia: '',
           search_blob: [
             bol.numero_boletim,
             noticia.titulo,
             noticia.fonte,
-            (noticia.corpo_paragrafos || []).join(' ')
+            (noticia.corpo_paragrafos || []).join(' '),
+            noticia.entendimento_assunto || ''
           ].join(' ').toLowerCase()
         });
       });
@@ -169,6 +173,21 @@ window.SearchEngine = {
         .map(p => `<p>${this.formatMarkdown(p)}</p>`)
         .join('');
 
+      // Entendimento do Assunto (Visão Executiva)
+      let understandingHtml = '';
+      if (item.entendimento_assunto) {
+        understandingHtml = `
+          <div class="card-understanding">
+            <div class="card-understanding-title">
+              <span>💡</span> Entendimento do Assunto (Visão Executiva):
+            </div>
+            <div class="card-understanding-text">
+              ${this.formatMarkdown(item.entendimento_assunto)}
+            </div>
+          </div>
+        `;
+      }
+
       // Plano de Ação
       let actionPlanHtml = '';
       if (item.plano_de_acao && item.plano_de_acao.length > 0) {
@@ -228,6 +247,8 @@ window.SearchEngine = {
           <div class="card-body-text">
             ${paras}
           </div>
+
+          ${understandingHtml}
 
           ${actionPlanHtml}
 

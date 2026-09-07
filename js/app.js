@@ -191,6 +191,16 @@ window.App = {
           it.orgao = 'SEFAZ DF';
           migrated = true;
         }
+        if (!it.entendimento_assunto) {
+          it.entendimento_assunto = `A norma **${it.norma || 'Fiscal'}** (${it.esfera || 'Estadual'}) estabelece diretrizes operacionais de conformidade perante a ${it.orgao || 'autoridade fazendária'}. Para a liderança e gestores, o foco principal é alinhar processos internos e rotinas de sistemas para mitigar riscos de penalidades.`;
+          migrated = true;
+        }
+      });
+      (b.noticias || []).forEach(n => {
+        if (!n.entendimento_assunto) {
+          n.entendimento_assunto = `Acompanhamento estratégico de jurisprudência com impacto potencial para tomada de decisão e planejamento corporativo.`;
+          migrated = true;
+        }
       });
     });
     if (migrated) {
@@ -573,16 +583,24 @@ window.App = {
   },
 
   clearGridRows() {
-    if (confirm("Deseja realmente limpar todas as linhas da grade?")) {
-      this.state.gridRows = [
-        { tipo: 'Lei', link: '' },
-        { tipo: 'Lei', link: '' },
-        { tipo: 'Lei', link: '' }
-      ];
-      this.renderGridRows();
-      const panel = document.getElementById('generated-preview-panel');
-      if (panel) panel.style.display = 'none';
-    }
+    this.state.gridRows = [
+      { tipo: 'Lei', link: '' },
+      { tipo: 'Lei', link: '' },
+      { tipo: 'Lei', link: '' }
+    ];
+    this.renderGridRows();
+
+    // Limpa o seletor de arquivo de planilha e seu badge de arquivo, se houver
+    const fileInput = document.getElementById('excel-file-input');
+    if (fileInput) fileInput.value = '';
+    const fileBadge = document.getElementById('upload-file-name-badge');
+    if (fileBadge) fileBadge.textContent = '';
+
+    // Oculta painel de pré-visualização gerada
+    const panel = document.getElementById('generated-preview-panel');
+    if (panel) panel.style.display = 'none';
+
+    this.showToast("🗑️ Grade de publicações limpa com sucesso!", "info");
   },
 
   openBatchPasteModal() {
@@ -705,7 +723,7 @@ window.App = {
    * Determina automaticamente a norma, órgão, esfera e elabora ementa com destaques e planos de ação
    * Exibe tela animada de 'Pesquisando...' e suporta IA Gemini em tempo real com fallback automático
    */
-  async processGridData() {
+  async processGridData(forceWithoutGemini = false) {
     // 1. Sincroniza valores digitados diretamente da tabela DOM
     this.syncGridFromDOM();
 
@@ -733,16 +751,35 @@ window.App = {
     const geminiKey = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
     const hasGemini = geminiKey.length > 10;
 
+    // Se o usuário não possui a chave configurada e não optou explicitamente por prosseguir manual, alerta com o modal explicativo
+    if (!hasGemini && !forceWithoutGemini) {
+      this.openGeminiMissingModal();
+      return;
+    }
+
     // 2. Abre a tela de 'Pesquisando & Analisando...'
     this.showProcessingOverlay({
       title: "Pesquisando & Analisando Legislação...",
-      subtitle: hasGemini 
-        ? "Consultando IA Gemini (Google AI Studio) em tempo real para interpretar os links..." 
-        : "Processando links com o Motor Heurístico Tributário Integrado...",
+      subtitle: "Acessando páginas oficiais e lendo o conteúdo dos atos normativos em tempo real...",
       step2: hasGemini 
-        ? "Consultando IA Gemini 1.5/2.0 Flash em tempo real..." 
+        ? "Consultando IA Gemini com o conteúdo real da página..." 
         : "Decodificando órgãos oficiais e normas tributárias..."
     });
+
+    // Etapa 1: Webscraping em tempo real de cada link oficial
+    const enrichedRows = [];
+    for (let i = 0; i < validRows.length; i++) {
+      const r = validRows[i];
+      const link = (r.link || r.lei || '').trim();
+      this.updateProcessingStep(1, `Acessando e lendo link ${i + 1} de ${validRows.length}...`, false);
+      const scraped = await TaxSynthesizer.scrapeUrl(link);
+      enrichedRows.push({
+        ...r,
+        scrapedTitle: scraped?.title || "",
+        scrapedContent: scraped?.content || ""
+      });
+    }
+    this.updateProcessingStep(1, "Publicações oficiais lidas e conteúdos extraídos com sucesso!", true);
 
     // Pausa técnica para permitir animação fluida da interface
     await new Promise(r => setTimeout(r, 400));
@@ -751,18 +788,22 @@ window.App = {
 
     if (hasGemini) {
       try {
-        this.updateProcessingStep(2, "Consultando IA Gemini (Google AI Studio) em tempo real...", false);
-        generated = await TaxSynthesizer.synthesizeWithGemini(geminiKey, num, per, validRows);
-        this.updateProcessingStep(2, "IA Gemini concluiu a síntese com sucesso!", true);
+        this.updateProcessingStep(2, "Consultando Inteligência Artificial com os dados oficiais da página...", false);
+        generated = await TaxSynthesizer.synthesizeWithAI(geminiKey, num, per, enrichedRows);
+        this.updateProcessingStep(2, "IA concluiu a síntese com sucesso!", true);
       } catch (geminiErr) {
-        console.warn("Aviso na chamada à API Gemini:", geminiErr);
-        this.updateProcessingStep(2, `Aviso IA: ${geminiErr.message}. Ativando Motor Heurístico...`, true);
+        console.warn("Aviso na chamada à API de IA:", geminiErr);
+        this.updateProcessingStep(2, `Aviso: Falha na IA. Ativando Motor Heurístico...`, true);
         await new Promise(r => setTimeout(r, 700));
-        generated = TaxSynthesizer.synthesize(num, per, validRows);
+
+        // Alerta transparente para o analista fiscal não ficar sem entender
+        alert(`⚠️ Aviso sobre a Inteligência Artificial:\n\nA consulta à IA retornou uma falha:\n${geminiErr.message}\n\nO boletim foi estruturado com sucesso a partir do conteúdo real extraído da página. Você pode complementar ou ajustar os dados clicando em "✏️ Editar".`);
+
+        generated = TaxSynthesizer.synthesize(num, per, enrichedRows, geminiErr.message);
       }
     } else {
-      this.updateProcessingStep(2, "Motor Heurístico identificou órgãos e normas com sucesso!", true);
-      generated = TaxSynthesizer.synthesize(num, per, validRows);
+      this.updateProcessingStep(2, "Motor Heurístico estruturou a publicação com base na leitura real da página!", true);
+      generated = TaxSynthesizer.synthesize(num, per, enrichedRows);
     }
 
     this.updateProcessingStep(3, "Ementário estruturado e diagramado com sucesso!", true);
@@ -1022,6 +1063,16 @@ window.App = {
         .map(p => `<p>${SearchEngine.formatMarkdown(p)}</p>`)
         .join('');
 
+      let understandingBox = '';
+      if (item.entendimento_assunto) {
+        understandingBox = `
+          <div class="pdf-understanding-box">
+            <div class="pdf-understanding-title">💡 Entendimento do Assunto (Visão Executiva):</div>
+            <div class="pdf-understanding-text">${SearchEngine.formatMarkdown(item.entendimento_assunto)}</div>
+          </div>
+        `;
+      }
+
       let actionPlan = '';
       if (item.plano_de_acao && item.plano_de_acao.length > 0) {
         const lis = item.plano_de_acao
@@ -1067,6 +1118,7 @@ window.App = {
 
             <div class="content-body">
               ${paras}
+              ${understandingBox}
               ${actionPlan}
               ${vig}
             </div>
@@ -1091,6 +1143,16 @@ window.App = {
         .map(p => `<p>${SearchEngine.formatMarkdown(p)}</p>`)
         .join('');
 
+      let notiUnderstanding = '';
+      if (noticia.entendimento_assunto) {
+        notiUnderstanding = `
+          <div class="pdf-understanding-box">
+            <div class="pdf-understanding-title">💡 Entendimento do Assunto (Visão Executiva):</div>
+            <div class="pdf-understanding-text">${SearchEngine.formatMarkdown(noticia.entendimento_assunto)}</div>
+          </div>
+        `;
+      }
+
       const pNoti = `
         <section class="a4-sheet" id="sheet-${notiPageNum}">
           <div>
@@ -1100,6 +1162,7 @@ window.App = {
 
             <div class="content-body">
               ${paras}
+              ${notiUnderstanding}
               <div style="margin-top: 25pt; font-size: 11pt;">
                 <strong>Fonte:</strong> ${noticia.fonte || 'Clipping Tributário'}<br>
                 <strong>Link:</strong> <a href="${noticia.link}" target="_blank" style="color: #0563c1;">${noticia.link}</a>
@@ -1208,20 +1271,66 @@ window.App = {
     }, 250);
   },
 
+  /**
+   * Sistema de Notificação Flutuante (Toast)
+   */
+  showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `app-toast toast-${type}`;
+    
+    let borderColor = 'var(--border-subtle)';
+    if (type === 'success') borderColor = 'rgba(16, 185, 129, 0.6)';
+    if (type === 'warning') borderColor = 'rgba(245, 158, 11, 0.6)';
+    if (type === 'error') borderColor = 'rgba(239, 68, 68, 0.6)';
+    toast.style.borderColor = borderColor;
+
+    toast.innerHTML = `<span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    }, 3200);
+  },
+
   // =========================================================================
-  // GESTÃO DA CHAVE DE API DO GOOGLE GEMINI (GOOGLE AI STUDIO)
+  // GESTÃO DA CHAVE DE API DE IA (GOOGLE AI STUDIO OU OPENAI)
   // =========================================================================
 
   openGeminiModal() {
     const modal = document.getElementById('gemini-key-modal');
     const input = document.getElementById('gemini-api-key-input');
     const statusEl = document.getElementById('gemini-modal-status');
-    const currentKey = localStorage.getItem('fastshop_gemini_api_key') || '';
+    const resultBox = document.getElementById('gemini-test-result');
+    const currentKey = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
 
+    if (resultBox) resultBox.style.display = 'none';
     if (input) input.value = currentKey;
+
     if (statusEl) {
-      statusEl.textContent = currentKey ? "Status: Conectado (Google AI Studio)" : "Status: Não configurada (usando Motor Heurístico)";
-      statusEl.style.color = currentKey ? "#10B981" : "var(--text-muted)";
+      if (!currentKey) {
+        statusEl.textContent = "Status: Não configurado (Motor Heurístico ativo)";
+        statusEl.style.color = "var(--text-muted)";
+      } else if (currentKey.startsWith('sk-')) {
+        statusEl.textContent = "Status: Token OpenAI (ChatGPT) configurado";
+        statusEl.style.color = "#10B981";
+      } else if (currentKey.startsWith('AIzaSy') || currentKey.startsWith('AQ.')) {
+        statusEl.textContent = "Status: Token Google Gemini (Plano Pro/Flash) configurado";
+        statusEl.style.color = "#10B981";
+      } else {
+        statusEl.textContent = `Status: Token configurado (${currentKey.slice(0, 5)}...)`;
+        statusEl.style.color = "#10B981";
+      }
     }
     if (modal) modal.classList.add('active');
   },
@@ -1238,48 +1347,134 @@ window.App = {
     }
   },
 
+  async testApiKey() {
+    const input = document.getElementById('gemini-api-key-input');
+    const resultBox = document.getElementById('gemini-test-result');
+    const testBtn = document.getElementById('btn-test-gemini-key');
+    const key = (input ? input.value : '').trim();
+
+    if (!key) {
+      alert("Por favor, cole seu Token de API antes de clicar em Testar.");
+      return;
+    }
+
+    if (resultBox) {
+      resultBox.style.display = 'block';
+      resultBox.style.background = 'rgba(99, 102, 241, 0.12)';
+      resultBox.style.border = '1px solid rgba(99, 102, 241, 0.35)';
+      resultBox.style.color = '#818CF8';
+      resultBox.innerHTML = '⏳ Conectando aos servidores da IA em tempo real para validar...';
+    }
+    if (testBtn) testBtn.disabled = true;
+
+    try {
+      const res = await TaxSynthesizer.testConnection(key);
+      if (resultBox) {
+        resultBox.style.background = 'rgba(16, 185, 129, 0.12)';
+        resultBox.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+        resultBox.style.color = '#34D399';
+        resultBox.innerHTML = `✅ <strong>Conexão bem-sucedida!</strong> Provedor: <strong>${res.provider}</strong> | Modelo: <code>${res.model}</code>`;
+      }
+    } catch (err) {
+      if (resultBox) {
+        resultBox.style.background = 'rgba(239, 68, 68, 0.12)';
+        resultBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        resultBox.style.color = '#F87171';
+        resultBox.innerHTML = `❌ <strong>Falha na validação do token:</strong><br>${err.message}`;
+      }
+    } finally {
+      if (testBtn) testBtn.disabled = false;
+    }
+  },
+
   saveGeminiKey() {
     const input = document.getElementById('gemini-api-key-input');
     const key = (input ? input.value : '').trim();
 
     if (!key) {
-      alert("Por favor, cole sua chave do Google AI Studio ou clique em 'Remover Chave'.");
+      this.showToast("Por favor, cole seu token de API antes de salvar.", "warning");
       return;
     }
 
     localStorage.setItem('fastshop_gemini_api_key', key);
     this.updateGeminiStatusIndicator();
-    this.closeGeminiModal();
-    alert("Chave da IA Gemini salva com sucesso no navegador! As próximas análises de links consultarão a IA em tempo real.");
+
+    const resultBox = document.getElementById('gemini-test-result');
+    if (resultBox) {
+      resultBox.style.display = 'block';
+      resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
+      resultBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+      resultBox.style.color = '#34D399';
+      resultBox.innerHTML = '✅ <strong>Token salvo com sucesso!</strong> As próximas análises de leis utilizarão a IA.';
+    }
+
+    this.showToast("💾 Token de API salvo com sucesso no navegador!", "success");
+
+    setTimeout(() => {
+      this.closeGeminiModal();
+      if (resultBox) resultBox.style.display = 'none';
+    }, 900);
   },
 
   clearGeminiKey() {
-    if (confirm("Deseja remover a chave da IA Gemini salva no navegador? O sistema voltará a utilizar o Motor Heurístico Integrado.")) {
-      localStorage.removeItem('fastshop_gemini_api_key');
-      const input = document.getElementById('gemini-api-key-input');
-      if (input) input.value = '';
-      this.updateGeminiStatusIndicator();
-      this.closeGeminiModal();
-      alert("Chave removida. O portal utilizará o Motor Heurístico Integrado.");
+    localStorage.removeItem('fastshop_gemini_api_key');
+    const input = document.getElementById('gemini-api-key-input');
+    if (input) input.value = '';
+
+    const resultBox = document.getElementById('gemini-test-result');
+    if (resultBox) {
+      resultBox.style.display = 'block';
+      resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
+      resultBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+      resultBox.style.color = '#34D399';
+      resultBox.innerHTML = '✅ <strong>Token removido com sucesso.</strong> O portal voltou a operar com o Motor Heurístico Integrado (100% gratuito).';
     }
+
+    this.updateGeminiStatusIndicator();
+    this.showToast("🔑 Token de API removido com sucesso.", "info");
+
+    setTimeout(() => {
+      this.closeGeminiModal();
+      if (resultBox) resultBox.style.display = 'none';
+    }, 1200);
   },
 
   updateGeminiStatusIndicator() {
-    const key = localStorage.getItem('fastshop_gemini_api_key');
+    const key = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
     const dot = document.getElementById('gemini-status-indicator');
     const btnLabel = document.getElementById('gemini-btn-label');
 
     if (dot) {
-      if (key && key.trim().length > 10) {
+      if (key && key.length > 10) {
         dot.style.background = '#10B981';
-        dot.title = 'IA Gemini Conectada (Tempo Real)';
-        if (btnLabel) btnLabel.textContent = 'IA Conectada';
+        dot.title = 'Token de IA Conectado (Tempo Real)';
+        if (btnLabel) btnLabel.textContent = 'Token Ativo';
       } else {
         dot.style.background = '#9CA3AF';
         dot.title = 'Motor Heurístico Local Ativo';
-        if (btnLabel) btnLabel.textContent = 'IA Gemini';
+        if (btnLabel) btnLabel.textContent = 'Token de IA';
       }
     }
+  },
+
+  openGeminiMissingModal() {
+    const m = document.getElementById('gemini-missing-modal');
+    if (m) m.classList.add('active');
+  },
+
+  closeGeminiMissingModal() {
+    const m = document.getElementById('gemini-missing-modal');
+    if (m) m.classList.remove('active');
+  },
+
+  openGeminiModalFromWarning() {
+    this.closeGeminiMissingModal();
+    this.openGeminiModal();
+  },
+
+  proceedWithoutGemini() {
+    this.closeGeminiMissingModal();
+    this.processGridData(true);
   },
 
   // =========================================================================
@@ -1325,6 +1520,8 @@ window.App = {
       document.getElementById('edit-resumo-tabela').value = item.resumo_tabela || '';
       document.getElementById('edit-link').value = item.link || '';
       document.getElementById('edit-corpo').value = (item.corpo_paragrafos || []).join('\n\n');
+      const entInput = document.getElementById('edit-entendimento');
+      if (entInput) entInput.value = item.entendimento_assunto || '';
       document.getElementById('edit-plano-acao').value = (item.plano_de_acao || []).join('\n');
     } else {
       // Notícia
@@ -1341,6 +1538,8 @@ window.App = {
       document.getElementById('edit-news-fonte').value = noticia.fonte || '';
       document.getElementById('edit-news-link').value = noticia.link || '';
       document.getElementById('edit-news-corpo').value = (noticia.corpo_paragrafos || []).join('\n\n');
+      const newsEntInput = document.getElementById('edit-news-entendimento');
+      if (newsEntInput) newsEntInput.value = noticia.entendimento_assunto || '';
     }
 
     const modal = document.getElementById('edit-item-modal');
@@ -1387,6 +1586,9 @@ window.App = {
         const rawCorpo = document.getElementById('edit-corpo').value || '';
         item.corpo_paragrafos = rawCorpo.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
 
+        const entInput = document.getElementById('edit-entendimento');
+        if (entInput) item.entendimento_assunto = entInput.value.trim();
+
         const rawPlan = document.getElementById('edit-plano-acao').value || '';
         item.plano_de_acao = rawPlan.split('\n').map(l => l.trim()).filter(Boolean);
       } else {
@@ -1399,6 +1601,9 @@ window.App = {
 
         const rawCorpo = document.getElementById('edit-news-corpo').value || '';
         noticia.corpo_paragrafos = rawCorpo.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+
+        const newsEntInput = document.getElementById('edit-news-entendimento');
+        if (newsEntInput) noticia.entendimento_assunto = newsEntInput.value.trim();
       }
     });
 

@@ -652,6 +652,36 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
   font-weight: 600;
 }
 
+/* Entendimento do Assunto (Visão Executiva) */
+.card-understanding {
+  background: rgba(99, 102, 241, 0.07);
+  border-left: 3px solid #818CF8;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 0.85rem;
+}
+
+.card-understanding-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #818CF8;
+  margin-bottom: 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card-understanding-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.card-understanding-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 /* Action Plan within Card */
 .card-action-plan {
   background: var(--bg-surface-elevated);
@@ -1101,6 +1131,28 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
   margin-bottom: 8pt;
 }
 
+.a4-sheet .pdf-understanding-box {
+  margin-top: 8pt;
+  margin-bottom: 8pt;
+  padding: 6pt 10pt;
+  background-color: #f8fafc;
+  border-left: 3pt solid #4f46e5;
+  border-radius: 2pt;
+}
+
+.a4-sheet .pdf-understanding-title {
+  font-size: 10pt;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 3pt;
+}
+
+.a4-sheet .pdf-understanding-text {
+  font-size: 9.5pt;
+  line-height: 1.35;
+  color: #334155;
+}
+
 .a4-sheet .action-plan {
   margin-top: 10pt;
   margin-bottom: 10pt;
@@ -1314,3 +1366,46 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
 @keyframes processingSpin {
   to { transform: rotate(360deg); }
 }
+
+/* Toast Notification System */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.app-toast {
+  background: var(--bg-surface-elevated, #1F2937);
+  color: var(--text-primary, #F9FAFB);
+  border: 1px solid var(--border-subtle);
+  padding: 12px 18px;
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 440px;
+  pointer-events: auto;
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

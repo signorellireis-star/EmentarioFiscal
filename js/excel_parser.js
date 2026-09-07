@@ -273,9 +273,45 @@ window.ExcelParser = {
 window.TaxSynthesizer = {
 
   /**
+   * Faz o Webscraping em tempo real da URL oficial via proxy/leitor com suporte a CORS
+   * Obtém o Título real da página e o texto da ementa/artigos
+   */
+  async scrapeUrl(url) {
+    if (!url || typeof url !== 'string' || !url.startsWith('http')) return null;
+    try {
+      const jinaUrl = `https://r.jina.ai/${url.trim()}`;
+      const res = await fetch(jinaUrl, {
+        headers: { 'Accept': 'text/plain' }
+      });
+      if (!res.ok) return null;
+      const text = await res.text();
+      if (!text || text.length < 20) return null;
+
+      let title = "";
+      const mTitle = text.match(/^Title:\s*(.+)$/m);
+      if (mTitle) {
+        title = mTitle[1].trim();
+      }
+
+      let content = "";
+      const mContent = text.match(/Markdown Content:\s*\n+([\s\S]+)/);
+      if (mContent) {
+        content = mContent[1].trim().slice(0, 3000);
+      } else {
+        content = text.slice(0, 2000);
+      }
+
+      return { title, content };
+    } catch (e) {
+      console.warn("Aviso no webscraping:", e);
+      return null;
+    }
+  },
+
+  /**
    * Extrai metadados completos de legislação a partir da URL oficial
    */
-  parseTaxUrl(rawUrl, itemIndex) {
+  parseTaxUrl(rawUrl, itemIndex, fallbackReason = null, scrapedData = null) {
     const url = (rawUrl || '').trim();
     const urlLower = url.toLowerCase();
     const dataPub = new Date().toLocaleDateString('pt-BR');
@@ -469,56 +505,172 @@ window.TaxSynthesizer = {
       impacto = urlLower.includes("confaz") ? "ICMS / Atos Interestaduais" : "Tributos Federais / Regulação";
       area = "Indiretos / Jurídico";
 
+      const matchYearInPath = url.match(/\/(\d{4})\//);
+      const defaultYear = matchYearInPath ? matchYearInPath[1] : '2026';
+
       if (urlLower.includes("convenio")) {
-        const m = url.match(/convenio[_\s-]?icms[_\s-]?(\d+)[_\/](\d{2,4})/i) || url.match(/convenio[_\s-]?(\d+)/i);
-        norma = m ? `Convênio ICMS nº ${m[1]}/${m[2] || '2026'}` : `Convênio ICMS nº ${itemIndex}/2026`;
+        const m = url.match(/convenio[_\s-]?icms[_\s-]?(\d+)[_\/-](\d{2,4})/i) 
+               || url.match(/convenio[_\s-]?(\d+)[_\/-](\d{2,4})/i)
+               || url.match(/convenio[_\s-]?icms[_\s-]?(\d+)/i)
+               || url.match(/convenio[_\s-]?(\d+)/i);
+        if (m) {
+          const num = m[1];
+          let ano = m[2] || defaultYear;
+          if (ano.length === 2) ano = '20' + ano;
+          norma = `Convênio ICMS nº ${num}/${ano}`;
+        } else {
+          norma = `Convênio ICMS nº ${itemIndex}/${defaultYear}`;
+        }
       } else if (urlLower.includes("ajuste")) {
-        const m = url.match(/ajuste[_\s-]?sinief[_\s-]?(\d+)[_\/](\d{2,4})/i) || url.match(/ajuste[_\s-]?(\d+)/i);
-        norma = m ? `Ajuste SINIEF nº ${m[1]}/${m[2] || '2026'}` : `Ajuste SINIEF nº ${itemIndex}/2026`;
+        const m = url.match(/ajuste[_\s-]?sinief[_\s-]?(\d+)[_\/-](\d{2,4})/i) 
+               || url.match(/ajuste[_\s-]?(\d+)[_\/-](\d{2,4})/i)
+               || url.match(/ajuste[_\s-]?sinief[_\s-]?(\d+)/i);
+        if (m) {
+          const num = m[1];
+          let ano = m[2] || defaultYear;
+          if (ano.length === 2) ano = '20' + ano;
+          norma = `Ajuste SINIEF nº ${num}/${ano}`;
+        } else {
+          norma = `Ajuste SINIEF nº ${itemIndex}/${defaultYear}`;
+        }
       } else {
         const m = url.match(/(?:decreto|lei|instrucao-normativa|portaria)[_\s-]?(\d+)/i);
-        norma = m ? `Ato Federal nº ${m[1]}` : `Publicação Oficial DOU nº ${itemIndex}/2026`;
+        norma = m ? `Ato Federal nº ${m[1]}/${defaultYear}` : `Publicação Oficial DOU nº ${itemIndex}/${defaultYear}`;
       }
 
-      resumoTabela = `Ato normativo de alcance nacional disciplinado pelo ${orgao}.`;
+      resumoTabela = fallbackReason 
+        ? `[Resumo Pendente - Falha na IA] ${norma}. Clique em '✏️ Editar' para redigir a síntese.`
+        : `[Pendente de Resumo] Identificado via link: ${norma}. Clique em '✏️ Editar' para redigir ou configure o Token de IA.`;
+
+      const avisoTexto = fallbackReason 
+        ? `*(Aviso: A chamada à IA não foi concluída com este token (${fallbackReason}). O item foi registrado pelo Motor Heurístico. Clique em "✏️ Editar" para redigir a síntese ou revise sua chave de API).*`
+        : `*(Aviso de Conformidade: Processado pelo Motor Heurístico sem IA ativa. Para geração de resumo automático, configure uma chave no botão "🔑 Token de IA" ou utilize o botão "✏️ Editar" para redigir a síntese oficial).*`;
 
       corpoParagrafos = [
-        `O órgão **${orgao}** publicou a **${norma}**, versando sobre normas gerais e harmonização tributária em nível nacional.`,
-        `A medida estabelece **diretrizes que impactam o comércio interestadual**, com desdobramentos diretos nas operações de faturamento e logística.`
+        `A publicação oficial **${norma}** foi identificada com sucesso a partir do endereço eletrônico do **${orgao}**.`,
+        avisoTexto
       ];
 
       planoAcao = [
-        `**Planejamento Tributário:** Avaliar impactos nas operações interestaduais e aderência aos acordos federativos.`,
-        `**TI Fiscal:** Parametrizar regras de emissão e contingência no sistema emissor corporativo.`
+        `**Planejamento Tributário / Indiretos:** Analisar o teor oficial da ${norma} e avaliar impactos nas operações interestaduais da Fast Shop.`
       ];
     }
     // 9. Fallback Inteligente para URLs de Legislação Gerais
     else {
-      // Extrai slug da URL
-      let slug = "";
-      try {
-        const u = new URL(url);
-        const pathParts = u.pathname.split('/').filter(Boolean);
-        slug = pathParts[pathParts.length - 1] || "";
-        slug = slug.replace(/\.[a-zA-Z0-9]+$/, ''); // remove .aspx, .html, etc.
-        slug = decodeURIComponent(slug).replace(/[_-]+/g, ' ').trim();
-      } catch (e) {
-        slug = "";
+      // Se tiver dados reais obtidos via Webscraping (Jina Reader)
+      if (scrapedData && scrapedData.title) {
+        const fullTitle = scrapedData.title;
+        const ftUpper = fullTitle.toUpperCase();
+
+        if (ftUpper.includes("MINAS GERAIS") || ftUpper.includes(" - MG") || ftUpper.includes("SEF/MG") || ftUpper.includes("SEFAZ/MG")) {
+          uf = "MG";
+          orgao = "SEFAZ MG";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("SÃO PAULO") || ftUpper.includes("SAO PAULO") || ftUpper.includes(" - SP") || ftUpper.includes("SEFAZ/SP")) {
+          uf = "SP";
+          orgao = "SEFAZ SP";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("RIO DE JANEIRO") || ftUpper.includes(" - RJ") || ftUpper.includes("SEFAZ/RJ")) {
+          uf = "RJ";
+          orgao = "SEFAZ RJ";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("CEARÁ") || ftUpper.includes("CEARA") || ftUpper.includes(" - CE") || ftUpper.includes("SEFAZ/CE")) {
+          uf = "CE";
+          orgao = "SEFAZ CE";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("DISTRITO FEDERAL") || ftUpper.includes(" - DF") || ftUpper.includes("SEFAZ/DF")) {
+          uf = "DF";
+          orgao = "SEFAZ DF";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("ESPÍRITO SANTO") || ftUpper.includes("ESPIRITO SANTO") || ftUpper.includes(" - ES")) {
+          uf = "ES";
+          orgao = "SEFAZ ES";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("PARANÁ") || ftUpper.includes("PARANA") || ftUpper.includes(" - PR")) {
+          uf = "PR";
+          orgao = "SEFAZ PR";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("SANTA CATARINA") || ftUpper.includes(" - SC")) {
+          uf = "SC";
+          orgao = "SEFAZ SC";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("RIO GRANDE DO SUL") || ftUpper.includes(" - RS")) {
+          uf = "RS";
+          orgao = "SEFAZ RS";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("BAHIA") || ftUpper.includes(" - BA")) {
+          uf = "BA";
+          orgao = "SEFAZ BA";
+          esfera = "ESTADUAL";
+        } else if (ftUpper.includes("CONFAZ") || ftUpper.includes("RECEITA FEDERAL") || ftUpper.includes("FEDERAL") || ftUpper.includes("UNIÃO")) {
+          uf = "BR";
+          orgao = ftUpper.includes("CONFAZ") ? "CONFAZ" : "RFB";
+          esfera = "FEDERAL";
+        }
+
+        // Extrai o nome da norma do título (ex: Portaria SRE Nº 285 DE 30/01/2026)
+        const matchNorma = fullTitle.match(/((?:Portaria|Decreto|Lei|Instru[cç][aã]o Normativa|Ato Declarat[oó]rio|Conv[eê]nio|Ajuste SINIEF|Resolu[cç][aã]o)[^-\u2013|]+)/i);
+        if (matchNorma) {
+          norma = matchNorma[1].trim();
+        } else {
+          norma = fullTitle.split(/[-–|]/)[0].trim();
+        }
+
+        // Extrai data se presente no título (ex: DE 30/01/2026)
+        const matchData = fullTitle.match(/(\d{2}[\/\.]\d{2}[\/\.]\d{4})/);
+        if (matchData) {
+          dataPub = matchData[1].replace(/\./g, '/');
+        }
+
+        // Se tem conteúdo em markdown extraído via scraping
+        if (scrapedData.content) {
+          const lines = scrapedData.content.split(/\n\s*\n/).map(l => l.trim()).filter(Boolean);
+          if (lines.length > 0) {
+            resumoTabela = lines[0].replace(/^#+\s*/, '').slice(0, 300);
+            corpoParagrafos = [
+              `O **${orgao}** (${uf}) publicou a **${norma}**, estabelecendo: ${resumoTabela}`,
+              lines[1] ? lines[1].slice(0, 400) : `A publicação oficial disciplina procedimentos operacionais e conformidade para os contribuintes sob jurisdição de ${uf}.`
+            ];
+            planoAcao = [
+              `**TI Fiscal / ERP:** Parametrizar as novas diretrizes da ${norma} nos sistemas e apurações das filiais sob circunscrição de ${uf}.`,
+              `**Compliance Tributário:** Acompanhar a vigência e validar aderência das rotinas fiscais da Fast Shop.`
+            ];
+          }
+        }
+      } 
+      // Fallback sem webscraping
+      else {
+        // Extrai slug da URL
+        let slug = "";
+        try {
+          const cleanUrl = url.startsWith('http') ? url : 'https://' + url;
+          const u = new URL(cleanUrl);
+          const pathParts = u.pathname.split('/').filter(Boolean);
+          slug = pathParts[pathParts.length - 1] || "";
+          slug = slug.replace(/\.[a-zA-Z0-9]+$/, ''); // remove .aspx, .html, etc.
+          slug = decodeURIComponent(slug).replace(/[_-]+/g, ' ').trim();
+        } catch (e) {
+          slug = "";
+        }
+
+        norma = slug && slug.length > 3 ? slug.toUpperCase() : `Ato Normativo nº ${itemIndex}/2026`;
+        resumoTabela = fallbackReason 
+          ? `[Resumo Pendente - Falha na IA] ${norma}. Clique em '✏️ Editar' para redigir a síntese.`
+          : `[Pendente de Resumo] Identificado via link: ${norma}. Clique em '✏️ Editar' para redigir ou configure o Token de IA.`;
+
+        const avisoGeral = fallbackReason
+          ? `*(Aviso: A consulta à IA não foi concluída (${fallbackReason}). Dados extraídos pelo Motor Heurístico. Clique em "✏️ Editar" para redigir o resumo ou revise seu Token de API).*`
+          : `*(Aviso: Para gerar a síntese automática dos artigos e desdobramentos operacionais, configure um token no botão "🔑 Token de IA" ou clique em "✏️ Editar" para redigir o resumo manualmente).*`;
+
+        corpoParagrafos = [
+          `O ato **${norma}** (${orgao}) foi identificado a partir do link oficial informado.`,
+          avisoGeral
+        ];
+
+        planoAcao = [
+          `**Compliance / Tributário:** Analisar os impactos da ${norma} e definir adequações nos procedimentos fiscais da companhia.`
+        ];
       }
-
-      norma = slug && slug.length > 3 ? slug.toUpperCase() : `Ato Normativo nº ${itemIndex}/2026`;
-      resumoTabela = `Publicação oficial de regulamentação fiscal e procedimentos tributários.`;
-
-      corpoParagrafos = [
-        `O ato normativo publicado pelo órgão **${orgao}** estabelece alterações e regras operacionais relativas ao **${impacto}**, demandando estrita observância pelos contribuintes com operações na circunscrição.`,
-        `A norma define **novo cronograma de cumprimento das obrigações**, impactando diretamente os procedimentos de emissão documental e a **conformidade na Escrituração Fiscal Digital (EFD)**.`
-      ];
-
-      planoAcao = [
-        `**Sistemas / TI Fiscal:** Verificar se a tabela de códigos e parâmetros no ERP está atualizada com as diretrizes da **${orgao}** para evitar rejeições cadastrais.`,
-        `**Escrituração / Tributário:** Validar a correta apuração e emissão dos documentos fiscais pertinentes às filiais da região.`,
-        `**Alinhamento de Processos:** Divulgar as novas regras para as áreas operacionais correlatas (Logística, Comercial e Tesouraria).`
-      ];
     }
 
     const titulo = `${itemIndex}. ${uf} - ${norma} - Publicação Oficial de ${dataPub}`;
@@ -529,12 +681,13 @@ window.TaxSynthesizer = {
       titulo: titulo,
       data_publicacao: dataPub,
       norma: norma,
-      link: url,
+      link: url.startsWith('http') ? url : 'https://' + url,
       orgao: orgao,
       resumo_tabela: resumoTabela,
       impacto: impacto,
       area_impactada: area,
       corpo_paragrafos: corpoParagrafos,
+      entendimento_assunto: `A norma **${norma}** emitida pela ${orgao} (${esfera}) estabelece procedimentos e diretrizes de conformidade fiscal. Para a gestão empresarial e líderes não fiscais, o principal ponto de atenção é garantir que as rotinas operacionais e sistêmicas da companhia reflitam essas exigências para prevenir penalidades e manter a regularidade tributária.`,
       plano_de_acao: planoAcao,
       vigencia: `Efeitos a partir de ${dataPub}.`
     };
@@ -543,7 +696,7 @@ window.TaxSynthesizer = {
   /**
    * Extrai metadados completos de notícia tributária a partir da URL
    */
-  parseNewsUrl(rawUrl, itemIndex) {
+  parseNewsUrl(rawUrl, itemIndex, fallbackReason = null, scrapedData = null) {
     const url = (rawUrl || '').trim();
     const urlLower = url.toLowerCase();
     const dataPub = new Date().toLocaleDateString('pt-BR');
@@ -557,41 +710,62 @@ window.TaxSynthesizer = {
     else if (urlLower.includes("folha.uol.com.br")) fonte = "Folha de S. Paulo";
     else if (urlLower.includes("tributario.com.br")) fonte = "Tributário Notícias";
 
-    // Extrai manchete do slug da URL
     let manchete = "";
-    try {
-      const u = new URL(url);
-      const pathParts = u.pathname.split('/').filter(Boolean);
-      let lastPart = pathParts[pathParts.length - 1] || "";
-      lastPart = lastPart.replace(/\.[a-zA-Z0-9]+$/, '');
-      lastPart = decodeURIComponent(lastPart).replace(/[_-]+/g, ' ').trim();
-      if (lastPart.length > 5) {
-        // Capitaliza as palavras
-        manchete = lastPart.charAt(0).toUpperCase() + lastPart.slice(1);
+    let corpo_paragrafos = [];
+
+    if (scrapedData && scrapedData.title) {
+      manchete = scrapedData.title.split(/[-–|]/)[0].trim();
+      if (scrapedData.content) {
+        const lines = scrapedData.content.split(/\n\s*\n/).map(l => l.trim()).filter(Boolean);
+        corpo_paragrafos = lines.slice(0, 2).map(l => l.slice(0, 400));
       }
-    } catch (e) {
-      manchete = "";
+    }
+
+    if (!manchete || manchete.length < 5) {
+      // Extrai manchete do slug da URL
+      try {
+        const cleanUrl = url.startsWith('http') ? url : 'https://' + url;
+        const u = new URL(cleanUrl);
+        const pathParts = u.pathname.split('/').filter(Boolean);
+        let lastPart = pathParts[pathParts.length - 1] || "";
+        lastPart = lastPart.replace(/\.[a-zA-Z0-9]+$/, '');
+        lastPart = decodeURIComponent(lastPart).replace(/[_-]+/g, ' ').trim();
+        if (lastPart.length > 5) {
+          manchete = lastPart.charAt(0).toUpperCase() + lastPart.slice(1);
+        }
+      } catch (e) {
+        manchete = "";
+      }
     }
 
     if (!manchete || manchete.length < 5) {
       manchete = `Acompanhamento Jurídico-Tributário de Relevância nº ${itemIndex}`;
     }
 
+    const avisoNoticia = fallbackReason
+      ? `*(Aviso: A chamada à IA não foi concluída (${fallbackReason}). Clique em "✏️ Editar" para redigir o resumo da matéria).*`
+      : `*(Aviso: Para obter a síntese automática dos julgamentos e teses tributárias, configure um Token de API ou clique em "✏️ Editar" para redigir o resumo).*`;
+
+    if (corpo_paragrafos.length === 0) {
+      corpo_paragrafos = [
+        `A matéria tributária **${manchete}** foi catalogada a partir do portal ${fonte}.`,
+        avisoNoticia
+      ];
+    }
+
     return {
       titulo: manchete,
-      corpo_paragrafos: [
-        `A matéria em destaque analisa **julgamentos, discussões regulatórias e tendências jurisprudenciais** de elevado impacto econômico para o setor varejista e operações interestaduais.`,
-        `O monitoramento contínuo do tema é estratégico para mapear **riscos contingenciais**, orientar o posicionamento institucional da companhia e subsidiar decisões tributárias corporativas.`
-      ],
+      corpo_paragrafos: corpo_paragrafos,
+      entendimento_assunto: `A tese tributária em pauta no ${fonte} sinaliza posicionamentos jurisprudenciais relevantes. Para a diretoria e gestores de negócio, o acompanhamento serve como bússola estratégica para antecipar decisões empresariais e cenários de contingência.`,
       fonte: `${fonte} (${dataPub})`,
-      link: url
+      link: url.startsWith('http') ? url : 'https://' + url
     };
   },
 
   /**
    * Sintetizador Heurístico Local (Offline / Rápido / Sem custos de API)
    */
-  synthesize(numeroBoletim, periodo, rawRows) {
+  synthesize(numeroBoletim, periodo, rawRows, fallbackReason = null) {
     const itens = [];
     const noticias = [];
 
@@ -602,10 +776,15 @@ window.TaxSynthesizer = {
       if (!rawLink && !row.lei) return;
       const targetUrl = rawLink || row.lei;
 
+      const scrapedData = (row.scrapedTitle || row.scrapedContent) ? {
+        title: row.scrapedTitle,
+        content: row.scrapedContent
+      } : null;
+
       if (tipo.includes('NOTIC')) {
-        noticias.push(this.parseNewsUrl(targetUrl, noticias.length + 1));
+        noticias.push(this.parseNewsUrl(targetUrl, noticias.length + 1, fallbackReason, scrapedData));
       } else {
-        itens.push(this.parseTaxUrl(targetUrl, itens.length + 1));
+        itens.push(this.parseTaxUrl(targetUrl, itens.length + 1, fallbackReason, scrapedData));
       }
     });
 
@@ -621,24 +800,32 @@ window.TaxSynthesizer = {
   },
 
   /**
-   * Sintetizador via API Google Gemini (Google AI Studio)
-   * Realiza consulta à IA em tempo real quando o usuário configurou sua chave no site
+   * Sintetizador via API de IA (Google AI Studio ou OpenAI)
+   * Suporta modelos ultrarrápidos e de menor custo (Gemini Flash e GPT-4o-mini)
    */
-  async synthesizeWithGemini(apiKey, numeroBoletim, periodo, rawRows) {
+  async synthesizeWithAI(apiKey, numeroBoletim, periodo, rawRows) {
     const validRows = (rawRows || []).filter(r => (r.link || '').trim() || (r.lei || '').trim());
     if (validRows.length === 0) {
       throw new Error("Nenhuma linha válida para enviar à IA.");
     }
 
-    const itemsSummary = validRows.map((r, i) => 
-      `${i + 1}. Tipo: ${r.tipo || 'Lei'} | URL: ${r.link || r.lei}`
-    ).join('\n');
+    const itemsSummary = validRows.map((r, i) => {
+      let desc = `${i + 1}. Tipo: ${r.tipo || 'Lei'} | URL: ${r.link || r.lei}`;
+      if (r.scrapedTitle) {
+        desc += `\n   Título Oficial Detectado via Webscraping: ${r.scrapedTitle}`;
+      }
+      if (r.scrapedContent) {
+        desc += `\n   Conteúdo / Ementa Oficial da Página:\n   """\n   ${r.scrapedContent.slice(0, 1500)}\n   """`;
+      }
+      return desc;
+    }).join('\n\n');
 
     const promptText = `
 Você é o assistente sênior de inteligência tributária e compliance fiscal da Fast Shop.
 Analise a seguinte lista de links de legislação fiscal e notícias tributárias para gerar o Boletim de Ementário Fiscal corporativo nº ${numeroBoletim} (${periodo}).
+Atenção: Os títulos e conteúdos oficiais extraídos diretamente das páginas já foram incluídos abaixo para sua análise profunda.
 
-LINKS A PROCESSAR:
+LINKS E CONTEÚDOS A PROCESSAR:
 ${itemsSummary}
 
 REQUISITOS OBRIGATÓRIOS:
@@ -650,11 +837,13 @@ REQUISITOS OBRIGATÓRIOS:
    - Impacto: ICMS, PIS/COFINS, ICMS-ST, ISS, etc.
    - Área impactada: Indiretos, Jurídico, TI Fiscal, Cadastros, etc.
    - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**).
+   - Entendimento do Assunto (Visão Executiva): 1 parágrafo claro, didático e sem juridiquês voltado para um Gestor ou Diretor que não domina a área tributária. Explique: (a) O que é isso em palavras simples no mundo real; (b) Como afeta o dia a dia da empresa (ERP, faturamento, preço, compras ou compliance); (c) O que a liderança precisa saber para orientar sua equipe.
    - Plano de Ação: de 2 a 3 ações práticas direcionadas para o varejo (TI Fiscal/ERP, Parametrização, Tributário/Compliance, Logística/Comercial).
    - Vigência e Resumo em 1 linha para tabela de abertura.
 2. Para cada link classificado como 'Notícia':
    - Título claro da manchete jurídica.
    - 2 parágrafos resumindo a tese jurídica e riscos com pontos-chave em negrito (**destaque**).
+   - Entendimento do Assunto (Visão Executiva): 1 parágrafo didático sobre o impacto da tese para os gestores da empresa.
    - Fonte da notícia (ex: JOTA Tributário, Valor Econômico, ConJur) e data atual.
    - Link original.
 
@@ -681,6 +870,7 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
         "Parágrafo 1 com **destaque em negrito**...",
         "Parágrafo 2 com **destaque em negrito**..."
       ],
+      "entendimento_assunto": "Explicação didática para gestores e diretores: o que muda na prática, sem termos difíceis.",
       "plano_de_acao": [
         "**TI Fiscal:** ...",
         "**Tributário:** ..."
@@ -695,6 +885,7 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
         "Parágrafo 1 com **destaque**...",
         "Parágrafo 2 com **destaque**..."
       ],
+      "entendimento_assunto": "Visão executiva da tese jurídica para gestores.",
       "fonte": "JOTA Tributário (06/09/2026)",
       "link": "URL_ORIGINAL"
     }
@@ -702,63 +893,113 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
 }
 `;
 
-    // Modelos oficiais do Google AI Studio suportados (em ordem de preferência)
-    const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
-    let lastError = null;
     let rawTextResponse = null;
+    let lastError = null;
+    const cleanKey = (apiKey || '').trim();
 
-    for (const modelName of modelsToTry) {
+    if (!cleanKey) {
+      throw new Error("Nenhum Token de API foi informado.");
+    }
+
+    // 1. Detecção automática de chave OpenAI (inicia com 'sk-')
+    if (cleanKey.startsWith('sk-')) {
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
-        
-        const response = await fetch(endpoint, {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${cleanKey}`
+          },
           body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: promptText }]
-              }
+            model: 'gpt-4o-mini', // Modelo mais rápido, preciso e de menor custo da OpenAI
+            messages: [
+              { role: 'system', content: 'Você é o assistente sênior de inteligência tributária da Fast Shop. Responda exclusivamente em JSON válido conforme o esquema solicitado.' },
+              { role: 'user', content: promptText }
             ],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: "application/json"
-            }
+            response_format: { type: 'json_object' },
+            temperature: 0.2
           })
         });
 
         if (response.ok) {
-          const data = await response.json();
-          rawTextResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawTextResponse) {
-            break; // Sucesso!
-          }
+          const openAiData = await response.json();
+          rawTextResponse = openAiData?.choices?.[0]?.message?.content;
         } else {
-          const errText = await response.text();
           let msg = `HTTP ${response.status}`;
           try {
-            const errJson = JSON.parse(errText);
-            if (errJson.error && errJson.error.message) {
-              msg = errJson.error.message;
-            }
-          } catch (e) {}
-          lastError = new Error(msg);
-          // Se for erro de autenticação (chave inválida), não adianta tentar outros modelos
-          if (response.status === 400 && msg.includes('API_KEY_INVALID')) {
-            throw new Error(`Chave do Gemini inválida (${msg}). Verifique sua chave no Google AI Studio.`);
+            const errJson = await response.json();
+            msg = errJson?.error?.message || msg;
+          } catch (e) {
+            msg = (await response.text()).slice(0, 150) || msg;
           }
+          throw new Error(`OpenAI: ${msg}`);
         }
-      } catch (err) {
-        lastError = err;
-        if (err.message && err.message.includes('API_KEY_INVALID')) {
-          throw err;
+      } catch (openAiErr) {
+        lastError = openAiErr;
+      }
+    } 
+    // 2. Chave Google Gemini (Suporta Google AI Studio 'AIzaSy...' e Gemini Pro 'AQ...')
+    else {
+      const modelsToTry = ['gemini-3.6-flash', 'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
+
+      for (const modelName of modelsToTry) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+          
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-goog-api-key': cleanKey
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: promptText }]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: "application/json"
+              }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            rawTextResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawTextResponse) {
+              break; // Sucesso com este modelo!
+            }
+          } else {
+            const errText = await response.text();
+            let msg = `HTTP ${response.status}`;
+            let isKeyInvalid = false;
+            try {
+              const errJson = JSON.parse(errText);
+              msg = errJson?.error?.message || msg;
+              if (errJson?.error?.status === 'INVALID_ARGUMENT' && msg.includes('API key not valid')) {
+                isKeyInvalid = true;
+                msg = "Chave de API inválida ou sem permissão no Google Gemini.";
+              }
+            } catch (e) {
+              msg = errText.slice(0, 150) || msg;
+            }
+            lastError = new Error(`Google AI (${modelName}): ${msg}`);
+            // Interrompe se a chave for comprovadamente inválida. Se for 503 (alta demanda), tenta o próximo modelo Flash da lista!
+            if (isKeyInvalid || response.status === 401 || response.status === 403) {
+              break;
+            }
+          }
+        } catch (fetchErr) {
+          lastError = fetchErr;
         }
       }
     }
 
     if (!rawTextResponse) {
-      throw lastError || new Error("Não foi possível obter resposta dos servidores do Google Gemini.");
+      throw lastError || new Error("Não foi possível obter resposta dos servidores de Inteligência Artificial.");
     }
 
     let parsed;
@@ -793,9 +1034,84 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
       if (!it.plano_de_acao || !Array.isArray(it.plano_de_acao)) {
         it.plano_de_acao = ["**Tributário / Compliance:** Validar aderência das operações da companhia às regras divulgadas."];
       }
+      if (!it.entendimento_assunto || typeof it.entendimento_assunto !== 'string') {
+        it.entendimento_assunto = `A publicação oficial **${it.norma || 'Norma Fiscal'}** (${it.esfera || 'Estadual'}) estabelece procedimentos perante a ${it.orgao || 'autoridade fiscal'}. Para a gestão da empresa, o foco é alinhar as rotinas de escrituração e sistemas para mitigar riscos de penalidades.`;
+      }
+    });
+
+    parsed.noticias.forEach((n) => {
+      if (!n.entendimento_assunto || typeof n.entendimento_assunto !== 'string') {
+        n.entendimento_assunto = `Acompanhamento estratégico de jurisprudência com impacto potencial nas operações e planejamento financeiro da empresa.`;
+      }
     });
 
     return parsed;
+  },
+
+  /**
+   * Testa a conectividade com a API de IA do token informado
+   * @param {string} apiKey
+   * @returns {Promise<{provider: string, model: string}>}
+   */
+  async testConnection(apiKey) {
+    const cleanKey = (apiKey || '').trim();
+    if (!cleanKey) {
+      throw new Error("Por favor, informe a Chave de API antes de testar.");
+    }
+
+    if (cleanKey.startsWith('sk-')) {
+      const response = await fetch('https://api.openai.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${cleanKey}` }
+      });
+      if (!response.ok) {
+        let msg = `HTTP ${response.status}`;
+        try {
+          const errData = await response.json();
+          msg = errData?.error?.message || msg;
+        } catch (e) {
+          msg = (await response.text()).slice(0, 100) || msg;
+        }
+        throw new Error(`OpenAI: ${msg}`);
+      }
+      return { provider: 'OpenAI (ChatGPT)', model: 'gpt-4o-mini' };
+    } else {
+      const modelsToTest = ['gemini-3.6-flash', 'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
+      let lastDetail = '';
+
+      for (const m of modelsToTest) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-goog-api-key': cleanKey
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: "ping" }] }]
+            })
+          });
+
+          if (response.ok) {
+            return { provider: 'Google Gemini (Plano Pro/Flash)', model: m };
+          } else {
+            const errData = await response.json().catch(() => null);
+            lastDetail = errData?.error?.message || `HTTP ${response.status}`;
+            if (response.status === 400 || response.status === 401 || response.status === 403) {
+              if (lastDetail.includes('API key not valid') || lastDetail.includes('API_KEY_INVALID')) {
+                break;
+              }
+            }
+          }
+        } catch (e) {
+          lastDetail = e.message;
+        }
+      }
+      throw new Error(`Google AI: ${lastDetail}`);
+    }
   }
 };
+
+// Alias para compatibilidade
+window.TaxSynthesizer.synthesizeWithGemini = window.TaxSynthesizer.synthesizeWithAI;
 
