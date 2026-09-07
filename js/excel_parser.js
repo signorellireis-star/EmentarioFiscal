@@ -863,7 +863,7 @@ REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
    - Vigência e Resumo em 1 linha para tabela de abertura (contendo obrigatoriamente a ação + norma alterada + benefício).
 2. Para cada link classificado como 'Notícia':
    - Título claro da manchete jurídica.
-   - 2 parágrafos resumindo a tese jurídica e riscos com pontos-chave em negrito (**destaque**).
+   - 4 parágrafos resumindo a tese jurídica e riscos com pontos-chave em negrito (**destaque**).
    - Entendimento do Assunto (Visão Executiva): 1 parágrafo didático sobre o impacto da tese para os gestores da empresa.
    - Fonte da notícia (ex: JOTA Tributário, Valor Econômico, ConJur) e data atual.
    - Link original.
