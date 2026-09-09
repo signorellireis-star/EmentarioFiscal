@@ -854,10 +854,12 @@ REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
    - Área impactada: Indiretos, Jurídico, TI Fiscal, Cadastros, Projetos quando houver ajustes sistêmicos etc.
    - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**):
      * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas.
-     * 2º Parágrafo: Datas e prazos de vigência e obrigações para os contribuintes. Resuma do que se tratam os artigos, sendo apenas os mais relevantes e suas alterações. 
-	 * 3º Parágrafo: Caso a legislação mencione que entra em vigor em data especifica, mencione qual data seria efetuando o cálculo pela data da publicação e a data esperada (ex: " Esta Instrução Normativa entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação.)
-		a) informe qual o artigo está sendo alterado.
-   - Entendimento do Assunto (Visão Executiva): 1 parágrafo claro, didático e sem juridiquês voltado para um Gestor ou Diretor de negócio que não domina a área fiscal. Explique de forma simples:
+	 * 2° Parágrafo: Do que se tratam os artigos, os mais relevantes e suas alterações e explicação.
+     * 3º Parágrafo: Datas e prazos de vigência em negrito (**destaque**) e obrigações para os contribuintes. 
+	 * 4º Parágrafo: Caso a legislação mencione que entra em vigor em data especifica, mencione qual data seria, efetuando o cálculo pela data da publicação e a data esperada em negrito (ex: " Esta "Lei" entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação.)
+		(a) informe qual o artigo está sendo alterado.
+	 * 5º Parágrafo: Caso a lei mencione linha de produtos como "PRODUTOS ELETRÔNICOS, ELETROELETRÔNICOS, ELETRODOMÉSTICOS, MATERIAIS ELÉTRICOS, PAPÉIS, PLÁSTICOS, PRODUTOS CERÂMICOS E VIDROS,BEBIDAS ALCOÓLICAS, EXCETO CERVEJA E CHOPE, PRODUTOS DE PAPELARIA, MATERIAIS DE CONSTRUÇÃO E CONGÊNERES, FERRAMENTAS, LÂMPADAS, PRODUTOS DE PERFUMARIA E DE HIGIENE PESSOAL E COSMÉTICOS", informar que a Lei menciona algum destes itens em negrito e fonte na cor amarelo. Considerar como um ponto de alerta.
+   - Entendimento do Assunto (Visão Executiva): O que a lei está trazendo de alterações ou inclusões, didático e sem juridiquês voltado para um Gestor ou Diretor de negócio que não domina a área fiscal. Explique de forma simples:
      (a) O que é isso em palavras simples no mundo real e por que essa lei é tão importante (ex: preservação da carga tributária reduzida do Convênio 52/91);
      (b) Como afeta o dia a dia da empresa (ERP, matriz de alíquotas, cadastro de NCMs, compras B2B ou faturamento);
      (c) O que a liderança precisa saber para orientar sua equipe.
