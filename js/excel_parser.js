@@ -843,21 +843,36 @@ REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
 1. Para cada link classificado como 'Lei':
    - Identifique com exatidão o Nome da Norma (ex: 'Convênio ICMS nº 10/2026', 'Resposta à Consulta Tributária nº 32898/2025', 'Portaria SRE nº 35/2026', 'Decreto Estadual nº 68.000/2025', etc.).
    - IDENTIFICAÇÃO OBRIGATÓRIA DA LEI DE BASE / NORMA ALTERADA OU PRORROGADA (CAPUT):
-     Se a norma prorrogar, alterar, revogar ou regulamentar uma LEI, CONVÊNIO OU REGULAMENTO ORIGINÁRIO DE BASE (exemplo fundamental: o 'Convênio ICMS nº 10/2026' prorroga e altera o 'Convênio ICMS nº 52/1991', que concede redução da base de cálculo em equipamentos industriais e implementos agrícolas):
-     (a) É TERMINANTEMENTE OBRIGATÓRIO citar expressamente o número e ano da lei originária (ex: Convênio ICMS nº 52/1991) no 'titulo', no 'norma', no 'resumo_tabela', no 'corpo_paragrafos' (1º parágrafo) e no 'entendimento_assunto';
-     (b) Explique exatamente qual é o benefício fiscal ou assunto central da lei originária (ex: "redução da base de cálculo do ICMS em operações com equipamentos industriais e implementos agrícolas") e o novo prazo/vigência;
+     Se a norma prorrogar, alterar, revogar ou regulamentar uma LEI, CONVÊNIO OU REGULAMENTO ORIGINÁRIO DE BASE:
+     (a) É TERMINANTEMENTE OBRIGATÓRIO citar expressamente o número e ano da lei originária no 'titulo', no 'norma', no 'resumo_tabela', no 'corpo_paragrafos' (1º parágrafo) e no 'entendimento_assunto';
+     (b) Explique exatamente qual é o benefício fiscal ou assunto central da lei originária e o novo prazo/vigência;
      (c) NUNCA omita a norma originária alterada!
-   - Corpo ('corpo_paragrafos'): Lista de parágrafos analíticos com os pontos-chave em negrito (**destaque**), estruturados da seguinte forma:
-      * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas).
-      * 2º Parágrafo: Do que se tratam os artigos, os mais relevantes e suas alterações e explicações técnicas.
-      * 3º Parágrafo: Datas e prazos de vigência em negrito (**destaque**) e obrigações para os contribuintes.
-      * 4º Parágrafo: Caso a legislação mencione que entra em vigor em data específica ou por fórmula temporal, informe expressamente qual artigo está sendo alterado e calcule a data esperada a partir da publicação em negrito (ex: "Esta Instrução Normativa entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação - vigência a partir de **01/10/2026**").
-      * 5º Parágrafo (ESTRITAMENTE CONDICIONAL - LEITURA LITERAL OBRIGATÓRIA - NUNCA INFERIR):
-        - REGRA GERAL (PADRÃO): O array 'corpo_paragrafos' deve conter de 2 a 4 parágrafos. Por padrão, o 5º parágrafo NÃO EXISTE e NÃO DEVE SER CRIADO.
-        - PROIBIÇÃO ABSOLUTA DE DEDUÇÃO, INFERÊNCIA OU "PONTO DE ALERTA": É TERMINANTEMENTE PROIBIDO presumir, deduzir ou inventar que a lei se aplica a mercadorias como "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS" ou "MATERIAIS ELÉTRICOS" apenas porque a Fast Shop comercializa esses itens ou porque a norma trata de regras genéricas de ICMS, ICMS-ST, ressarcimento, complementação ou obrigações acessórias. NUNCA crie parágrafos deduzidos de alerta!
-        - CONDIÇÃO EXCLUSIVA PARA ATIVAÇÃO: Você SÓ TEM AUTORIZAÇÃO para incluir o 5º parágrafo se, e somente se, o texto oficial da legislação fornecido contiver LITERALMENTE e EXPRESSAMENTE a citação nominal de alguma destas palavras/categorias: "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS", "MATERIAIS ELÉTRICOS", "PAPÉIS", "PLÁSTICOS", "PRODUTOS CERÂMICOS E VIDROS", "BEBIDAS ALCOÓLICAS, EXCETO CERVEJA E CHOPE", "PRODUTOS DE PAPELARIA", "MATERIAIS DE CONSTRUÇÃO E CONGÊNERES", "FERRAMENTAS", "LÂMPADAS", "PRODUTOS DE PERFUMARIA E DE HIGIENE PESSOAL E COSMÉTICOS".
-        - CONDUTA SE NÃO HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: NÃO mencione nenhum produto, NÃO crie alerta e NÃO inclua o 5º parágrafo sob hipótese alguma.
-        - CONDUTA SE HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: Inclua o 5º parágrafo destacando o produto exatamente como mencionado: "A legislação menciona expressamente o segmento de **==[ITEM IDENTIFICADO NO TEXTO]==**."
+   - Corpo ('corpo_paragrafos'): Lista de parágrafos analíticos com os pontos-chave em negrito (**destaque**). A estrutura DEVE SE ADAPTAR À COMPLEXIDADE REAL DA NORMA:
+
+      REGRA FUNDAMENTAL DE FIDELIDADE AOS ARTIGOS REAIS (PROIBIDO ENCHER LINGUIÇA OU INVENTAR COMPLEXIDADE):
+      - Limite-se com rigor absoluto ao que os artigos da norma REALMENTE alteram ou determinam. NUNCA invente que a norma "ajusta diretrizes operacionais", "refina fluxos de apuração de ICMS-ST" ou "cria procedimentos formais" se os artigos da lei apenas alteraram uma data, prorrogaram um prazo ou mudaram a redação de um artigo pontual!
+      - NUNCA utilize as leis citadas no preâmbulo/considerandos como se fossem o objeto da alteração! (Ex: Leis e Decretos citados antes do "resolve", como Lei nº 1.254/1996, Lei nº 4.567/2011, Decreto nº 33.269/2011, apenas fundamentam a competência formal do Secretário/Governador para expedir o ato, não são matéria de mérito da norma).
+      - CUIDADO COM A VIGÊNCIA DE ATOS ALTERADORES: Quando um ato apenas altera ou prorroga a vigência de uma norma anterior, a cláusula "entra em vigor na data de sua publicação" refere-se apenas ao ato de alteração. NUNCA diga que o ato "passa a produzir efeitos imediatos sobre os procedimentos substantivos", pois o objetivo da norma foi exatamente POSTERGAR os efeitos das regras principais para uma data futura!
+
+      CENÁRIO A - NORMAS CURTAS DE ALTERAÇÃO PONTUAL / VIGÊNCIA / PRORROGAÇÃO (1 a 3 artigos):
+      * Produza de 1 a 2 parágrafos objetivos, sem forçar divisões artificiais nem parágrafos vazios.
+      * MODELO EXATO A SEGUIR (exemplo oficial validado pelo time fiscal):
+        "Foi alterado o artigo 9º da Instrução Normativa nº 7/2026, que disciplina procedimentos para a restituição parcial e a complementação do valor do ICMS pago no regime de substituição tributária para frente, sempre que a base de cálculo efetiva da operação for diversa da presumida, para determinar que ela entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação (vigência calculada a partir de **01/10/2026**).
+        Anteriormente a entrada em vigor se daria no primeiro dia do mês subsequente ao da sua publicação. Com a alteração, os contribuintes ganham prazo adicional para adequação dos controles fiscais e operacionais."
+      * Para normas curtas de alteração, esse formato é 100% completo, claro e suficiente. NUNCA crie parágrafos adicionais com especulação técnica ou citando leis do preâmbulo!
+
+      CENÁRIO B - NORMAS EXTENSAS, NOVOS REGULAMENTOS OU COM MÚLTIPLOS ARTIGOS SUBSTANTIVOS:
+      * 1º Parágrafo: Contexto da publicação e conexão direta com a lei de base / regulamento originário.
+      * 2º Parágrafo: Do que se tratam os artigos mais relevantes, suas novas regras e obrigações concretas para os contribuintes.
+      * 3º Parágrafo: Prazos, datas calculadas e vigência em negrito (**destaque**).
+
+      CENÁRIO C - REGRA ESTREITA CONDICIONAL PARA MERCADORIAS / PRODUTOS (5º PARÁGRAFO):
+      * REGRA GERAL (PADRÃO): O array 'corpo_paragrafos' NÃO deve conter parágrafo sobre produtos ou alertas.
+      * PROIBIÇÃO ABSOLUTA DE DEDUÇÃO OU "PONTO DE ALERTA": É TERMINANTEMENTE PROIBIDO presumir, deduzir ou inventar que a lei atinge "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS" ou "MATERIAIS ELÉTRICOS" a menos que a norma cite NOMINALMENTE. NUNCA crie parágrafos deduzidos de alerta!
+      * CONDIÇÃO EXCLUSIVA: SÓ inclua parágrafo sobre produtos se o texto oficial da lei fornecido contiver LITERALMENTE e EXPRESSAMENTE a menção nominal a: "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS", "MATERIAIS ELÉTRICOS", "PAPÉIS", "PLÁSTICOS", "PRODUTOS CERÂMICOS E VIDROS", "BEBIDAS ALCOÓLICAS, EXCETO CERVEJA E CHOPE", "PRODUTOS DE PAPELARIA", "MATERIAIS DE CONSTRUÇÃO E CONGÊNERES", "FERRAMENTAS", "LÂMPADAS", "PRODUTOS DE PERFUMARIA E DE HIGIENE PESSOAL E COSMÉTICOS".
+      * SE NÃO HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: NÃO mencione nenhum produto, NÃO crie alerta e NÃO inclua o 5º parágrafo sob hipótese alguma.
+      * SE HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: Inclua o 5º parágrafo destacando o produto exatamente como mencionado: "A legislação menciona expressamente o segmento de **==[ITEM IDENTIFICADO NO TEXTO]==**."
+
    - Esfera: FEDERAL, ESTADUAL ou MUNICIPAL.
    - UF: sigla do estado (SP, CE, DF, RJ, ES, etc.) ou BR para Federal.
    - Órgão emissor: SEFAZ SP, SEFAZ CE, SEFAZ DF, CONFAZ, RFB, etc.

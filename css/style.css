@@ -1409,3 +1409,12 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
   }
 }
 
+mark, .highlight-yellow {
+  background-color: #ffeb3b !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
+  display: inline !important;
+}
+

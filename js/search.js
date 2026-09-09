@@ -94,6 +94,7 @@ window.SearchEngine = {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
+      .replace(/==(.+?)==/g, '<mark class="highlight-yellow" style="background-color: #ffeb3b; color: #1a1a1a; font-weight: bold; padding: 1px 4px; border-radius: 2px;">$1</mark>')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
   },
