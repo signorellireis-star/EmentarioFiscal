@@ -846,19 +846,23 @@ REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
      Se a norma prorrogar, alterar, revogar ou regulamentar uma LEI, CONVÊNIO OU REGULAMENTO ORIGINÁRIO DE BASE (exemplo fundamental: o 'Convênio ICMS nº 10/2026' prorroga e altera o 'Convênio ICMS nº 52/1991', que concede redução da base de cálculo em equipamentos industriais e implementos agrícolas):
      (a) É TERMINANTEMENTE OBRIGATÓRIO citar expressamente o número e ano da lei originária (ex: Convênio ICMS nº 52/1991) no 'titulo', no 'norma', no 'resumo_tabela', no 'corpo_paragrafos' (1º parágrafo) e no 'entendimento_assunto';
      (b) Explique exatamente qual é o benefício fiscal ou assunto central da lei originária (ex: "redução da base de cálculo do ICMS em operações com equipamentos industriais e implementos agrícolas") e o novo prazo/vigência;
-     (c) NUNCA omita a norma originária alterada! Resumos fiscais que não citam a lei de base são incompletos e reprovados pelo time fiscal.
+     (c) NUNCA omita a norma originária alterada!
+   - Corpo ('corpo_paragrafos'): Lista de parágrafos analíticos com os pontos-chave em negrito (**destaque**), estruturados da seguinte forma:
+      * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas).
+      * 2º Parágrafo: Do que se tratam os artigos, os mais relevantes e suas alterações e explicações técnicas.
+      * 3º Parágrafo: Datas e prazos de vigência em negrito (**destaque**) e obrigações para os contribuintes.
+      * 4º Parágrafo: Caso a legislação mencione que entra em vigor em data específica ou por fórmula temporal, informe expressamente qual artigo está sendo alterado e calcule a data esperada a partir da publicação em negrito (ex: "Esta Instrução Normativa entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação - vigência a partir de **01/10/2026**").
+      * 5º Parágrafo (ESTRITAMENTE CONDICIONAL - LEITURA LITERAL OBRIGATÓRIA - NUNCA INFERIR):
+        - REGRA GERAL (PADRÃO): O array 'corpo_paragrafos' deve conter de 2 a 4 parágrafos. Por padrão, o 5º parágrafo NÃO EXISTE e NÃO DEVE SER CRIADO.
+        - PROIBIÇÃO ABSOLUTA DE DEDUÇÃO, INFERÊNCIA OU "PONTO DE ALERTA": É TERMINANTEMENTE PROIBIDO presumir, deduzir ou inventar que a lei se aplica a mercadorias como "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS" ou "MATERIAIS ELÉTRICOS" apenas porque a Fast Shop comercializa esses itens ou porque a norma trata de regras genéricas de ICMS, ICMS-ST, ressarcimento, complementação ou obrigações acessórias. NUNCA crie parágrafos deduzidos de alerta!
+        - CONDIÇÃO EXCLUSIVA PARA ATIVAÇÃO: Você SÓ TEM AUTORIZAÇÃO para incluir o 5º parágrafo se, e somente se, o texto oficial da legislação fornecido contiver LITERALMENTE e EXPRESSAMENTE a citação nominal de alguma destas palavras/categorias: "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS", "MATERIAIS ELÉTRICOS", "PAPÉIS", "PLÁSTICOS", "PRODUTOS CERÂMICOS E VIDROS", "BEBIDAS ALCOÓLICAS, EXCETO CERVEJA E CHOPE", "PRODUTOS DE PAPELARIA", "MATERIAIS DE CONSTRUÇÃO E CONGÊNERES", "FERRAMENTAS", "LÂMPADAS", "PRODUTOS DE PERFUMARIA E DE HIGIENE PESSOAL E COSMÉTICOS".
+        - CONDUTA SE NÃO HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: NÃO mencione nenhum produto, NÃO crie alerta e NÃO inclua o 5º parágrafo sob hipótese alguma.
+        - CONDUTA SE HOUVER CITAÇÃO LITERAL NO TEXTO DA LEI: Inclua o 5º parágrafo destacando o produto exatamente como mencionado: "A legislação menciona expressamente o segmento de **==[ITEM IDENTIFICADO NO TEXTO]==**."
    - Esfera: FEDERAL, ESTADUAL ou MUNICIPAL.
    - UF: sigla do estado (SP, CE, DF, RJ, ES, etc.) ou BR para Federal.
    - Órgão emissor: SEFAZ SP, SEFAZ CE, SEFAZ DF, CONFAZ, RFB, etc.
    - Impacto: ICMS, PIS/COFINS, ICMS-ST, ISS, PROJETOS quando houver ajustes sistêmicos etc.
    - Área impactada: Indiretos, Jurídico, TI Fiscal, Cadastros, Projetos quando houver ajustes sistêmicos etc.
-   - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**):
-     * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas.
-	 * 2° Parágrafo: Do que se tratam os artigos, os mais relevantes e suas alterações e explicação.
-     * 3º Parágrafo: Datas e prazos de vigência em negrito (**destaque**) e obrigações para os contribuintes. 
-	 * 4º Parágrafo: Caso a legislação mencione que entra em vigor em data especifica, mencione qual data seria, efetuando o cálculo pela data da publicação e a data esperada em negrito (ex: " Esta "Lei" entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação.)
-		(a) informe qual o artigo está sendo alterado.
-	 * 5º Parágrafo: Caso a lei mencione linha de produtos como "PRODUTOS ELETRÔNICOS, ELETROELETRÔNICOS, ELETRODOMÉSTICOS, MATERIAIS ELÉTRICOS, PAPÉIS, PLÁSTICOS, PRODUTOS CERÂMICOS E VIDROS,BEBIDAS ALCOÓLICAS, EXCETO CERVEJA E CHOPE, PRODUTOS DE PAPELARIA, MATERIAIS DE CONSTRUÇÃO E CONGÊNERES, FERRAMENTAS, LÂMPADAS, PRODUTOS DE PERFUMARIA E DE HIGIENE PESSOAL E COSMÉTICOS", informar que a Lei menciona algum destes itens em negrito e fonte na cor amarelo. Considerar como um ponto de alerta.
    - Entendimento do Assunto (Visão Executiva): O que a lei está trazendo de alterações ou inclusões, didático e sem juridiquês voltado para um Gestor ou Diretor de negócio que não domina a área fiscal. Explique de forma simples:
      (a) O que é isso em palavras simples no mundo real e por que essa lei é tão importante (ex: preservação da carga tributária reduzida do Convênio 52/91);
      (b) Como afeta o dia a dia da empresa (ERP, matriz de alíquotas, cadastro de NCMs, compras B2B ou faturamento);
@@ -1056,6 +1060,30 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
       if (!it.corpo_paragrafos || !Array.isArray(it.corpo_paragrafos)) {
         it.corpo_paragrafos = [String(it.corpo_paragrafos || "Síntese técnica estruturada.")];
       }
+
+      // Salvaguarda programática contra alucinação de segmentos/produtos no corpo_paragrafos:
+      // Se a IA gerou parágrafo deduzido ou alerta sobre mercadorias sem respaldo textual na página oficial
+      const sourceText = `${validRows[idx]?.scrapedTitle || ''} ${validRows[idx]?.scrapedContent || ''}`.toUpperCase();
+      const monitoredCategories = [
+        "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS", "MATERIAIS ELÉTRICOS",
+        "PAPÉIS", "PLÁSTICOS", "PRODUTOS CERÂMICOS", "VIDROS", "BEBIDAS ALCOÓLICAS",
+        "PRODUTOS DE PAPELARIA", "MATERIAIS DE CONSTRUÇÃO", "FERRAMENTAS", "LÂMPADAS",
+        "PRODUTOS DE PERFUMARIA", "HIGIENE PESSOAL", "COSMÉTICOS"
+      ];
+
+      it.corpo_paragrafos = it.corpo_paragrafos.filter(p => {
+        const pUpper = String(p).toUpperCase();
+        const hasAlertOrMention = pUpper.includes("PONTO DE ALERTA") || monitoredCategories.some(cat => pUpper.includes(cat));
+        if (hasAlertOrMention) {
+          // Só mantém se alguma das categorias monitoradas realmente constar no texto extraído da página oficial
+          const reallyInSource = monitoredCategories.some(cat => sourceText.includes(cat));
+          if (!reallyInSource) {
+            console.warn(`[Anti-Alucinação] Removido parágrafo sem respaldo literal no texto da norma: "${p.slice(0, 80)}..."`);
+            return false;
+          }
+        }
+        return true;
+      });
       if (!it.plano_de_acao || !Array.isArray(it.plano_de_acao)) {
         it.plano_de_acao = ["**Tributário / Compliance:** Validar aderência das operações da companhia às regras divulgadas."];
       }
