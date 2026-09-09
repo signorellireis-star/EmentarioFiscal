@@ -854,10 +854,9 @@ REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
    - Área impactada: Indiretos, Jurídico, TI Fiscal, Cadastros, Projetos quando houver ajustes sistêmicos etc.
    - Corpo: 2 parágrafos concisos com os pontos-chave em negrito (**destaque**):
      * 1º Parágrafo: O que a norma fez com a lei originária de base, detalhando expressamente o setor e o benefício fiscal (ex: prorrogação do benefício do Convênio ICMS nº 52/1991 para equipamentos industriais e implementos agrícolas.
-     * 2º Parágrafo: Efeitos operacionais, datas e prazos de vigência e obrigações para os contribuintes.
+     * 2º Parágrafo: Datas e prazos de vigência e obrigações para os contribuintes. Resuma do que se tratam os artigos, sendo apenas os mais relevantes e suas alterações. 
 	 * 3º Parágrafo: Caso a legislação mencione que entra em vigor em data especifica, mencione qual data seria efetuando o cálculo pela data da publicação e a data esperada (ex: " Esta Instrução Normativa entra em vigor no primeiro dia do segundo mês subsequente ao da sua publicação.)
 		a) informe qual o artigo está sendo alterado.
-		b) passe a lista das legislações que estão sofrendo as alterações DE > PARA
    - Entendimento do Assunto (Visão Executiva): 1 parágrafo claro, didático e sem juridiquês voltado para um Gestor ou Diretor de negócio que não domina a área fiscal. Explique de forma simples:
      (a) O que é isso em palavras simples no mundo real e por que essa lei é tão importante (ex: preservação da carga tributária reduzida do Convênio 52/91);
      (b) Como afeta o dia a dia da empresa (ERP, matriz de alíquotas, cadastro de NCMs, compras B2B ou faturamento);
