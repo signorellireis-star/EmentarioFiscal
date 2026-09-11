@@ -4,7 +4,7 @@ window.INITIAL_BOLETINS_DB = [
     "periodo": "11 a 11",
     "departamento": "Fiscal",
     "subtitulo": "Ementário Fiscal",
-    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
     "itens": [
       {
         "link": "https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=nCdXYyjCKQg=",
@@ -70,7 +70,7 @@ window.INITIAL_BOLETINS_DB = [
           "A Secretaria-Executiva do Conselho Nacional de Política Fazendária (**CONFAZ**) publicou o **Despacho nº 38/2026**, dando publicidade a Protocolos ICMS celebrados entre os Estados e o Distrito Federal.",
           "Os atos tratam de **ajustes e procedimentos operacionais no intercâmbio de informações e regras de apuração do ICMS** nas operações interestaduais praticadas pelos contribuintes signatários."
         ],
-        "entendimento_assunto": "A publicação formaliza novos entendimentos e acordos interestaduais no âmbito do CONFAZ. Para a Fast Shop, o acompanhamento dos Protocolos publicados é essencial para assegurar que as remessas e transferências interestaduais entre filiais e centros de distribuição operem em estrita conformidade com as exigências acordadas entre as Fazendas Estaduais."
+        "entendimento_assunto": "A publicação formaliza novos entendimentos e acordos interestaduais no âmbito do CONFAZ. Para a EmpresaX, o acompanhamento dos Protocolos publicados é essencial para assegurar que as remessas e transferências interestaduais entre filiais e centros de distribuição operem em estrita conformidade com as exigências acordadas entre as Fazendas Estaduais."
       },
       {
         "link": "https://normasinternet2.receita.fazenda.gov.br/#/consulta/externa/153242",
@@ -83,7 +83,7 @@ window.INITIAL_BOLETINS_DB = [
         "vigencia": "Efeitos a partir da publicação oficial.",
         "plano_de_acao": [
           "**Consultoria / Tributário:** Confrontar as conclusões da Solução de Consulta nº 153.242 com os critérios de creditamento praticados pela companhia.",
-          "**Compliance Fiscal:** Mapear e arquivar o ato no repositório de orientações fiscais da Fast Shop."
+          "**Compliance Fiscal:** Mapear e arquivar o ato no repositório de orientações fiscais da EmpresaX."
         ],
         "resumo_tabela": "Esclarece a interpretação e a aplicação da legislação tributária federal relativa a contribuições e créditos tributários.",
         "area_impactada": "Diretos / Consultoria",
@@ -329,7 +329,7 @@ window.INITIAL_BOLETINS_DB = [
           "Especialistas alertam que a coexistência dos sistemas tributários antigo e novo durante o período de transição exigirá grande esforço de tecnologia da informação e conformidade fiscal das empresas.",
           "A indefinição sobre o rol final de produtos que estarão sujeitos ao Imposto Seletivo é o ponto de maior atenção para os setores de bens de consumo duráveis e tecnologia."
         ],
-        "entendimento_assunto": "A transição do IPI para a CBS/IBS e Imposto Seletivo terá reflexos diretos no custo de aquisição e precificação no varejo. Para a liderança da Fast Shop, o acompanhamento do cronograma legislativo é vital para planejar com antecedência as compras estratégicas, negociações com fornecedores industriais e adaptações tecnológicas no ERP para o ano de 2027."
+        "entendimento_assunto": "A transição do IPI para a CBS/IBS e Imposto Seletivo terá reflexos diretos no custo de aquisição e precificação no varejo. Para a liderança da EmpresaX, o acompanhamento do cronograma legislativo é vital para planejar com antecedência as compras estratégicas, negociações com fornecedores industriais e adaptações tecnológicas no ERP para o ano de 2027."
       }
     ]
   },
@@ -338,7 +338,7 @@ window.INITIAL_BOLETINS_DB = [
     "periodo": "11 a 17.05.2026",
     "departamento": "Fiscal",
     "subtitulo": "Ementário Fiscal",
-    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
     "itens": [
       {
         "numero": 1,
@@ -493,7 +493,7 @@ window.INITIAL_BOLETINS_DB = [
     "periodo": "16 a 22.08.2026",
     "departamento": "Fiscal",
     "subtitulo": "Ementário Fiscal",
-    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+    "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
     "itens": [
       {
         "numero": 1,

@@ -1,5 +1,5 @@
 /**
- * Fast Shop - Portal do Ementário Fiscal
+ * EmpresaX - Portal do Ementário Fiscal
  * Aplicação Principal (Estado, Navegação, Persistência e Renderização A4)
  */
 
@@ -121,7 +121,7 @@ window.App = {
     const cloudBoletins = await this.supabase.fetchBoletins();
     if (cloudBoletins && cloudBoletins.length > 0) {
       this.state.boletins = cloudBoletins;
-      localStorage.setItem('fastshop_boletins_db', JSON.stringify(this.state.boletins));
+      localStorage.setItem('empresax_boletins_db', JSON.stringify(this.state.boletins));
       this.rebuildSearchIndex();
       this.updateMetrics();
       this.populateFilterDropdowns();
@@ -166,7 +166,7 @@ window.App = {
    * Carrega a base de dados do LocalStorage ou do arquivo inicial
    */
   loadDatabase() {
-    const localData = localStorage.getItem('fastshop_boletins_db');
+    const localData = localStorage.getItem('empresax_boletins_db') || localStorage.getItem('fastshop_boletins_db');
     if (localData) {
       try {
         this.state.boletins = JSON.parse(localData);
@@ -204,7 +204,7 @@ window.App = {
       });
     });
     if (migrated) {
-      localStorage.setItem('fastshop_boletins_db', JSON.stringify(this.state.boletins));
+      localStorage.setItem('empresax_boletins_db', JSON.stringify(this.state.boletins));
     }
 
     this.rebuildSearchIndex();
@@ -214,7 +214,7 @@ window.App = {
    * Salva o estado atual no LocalStorage e no Supabase (Nuvem)
    */
   saveDatabase(targetBoletim = null) {
-    localStorage.setItem('fastshop_boletins_db', JSON.stringify(this.state.boletins));
+    localStorage.setItem('empresax_boletins_db', JSON.stringify(this.state.boletins));
     this.rebuildSearchIndex();
     this.updateMetrics();
     this.populateFilterDropdowns();
@@ -801,7 +801,7 @@ window.App = {
       periodo: newGenerated.periodo || existingBol.periodo,
       departamento: newGenerated.departamento || existingBol.departamento || 'Fiscal',
       subtitulo: newGenerated.subtitulo || existingBol.subtitulo || 'Ementário Fiscal',
-      equipe: newGenerated.equipe || existingBol.equipe || 'Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br',
+      equipe: newGenerated.equipe || existingBol.equipe || 'Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br',
       itens: mergedItens,
       noticias: mergedNoticias
     };
@@ -837,7 +837,7 @@ window.App = {
       return;
     }
 
-    const geminiKey = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
+    const geminiKey = (localStorage.getItem('empresax_gemini_api_key') || localStorage.getItem('fastshop_gemini_api_key') || '').trim();
     const hasGemini = geminiKey.length > 10;
 
     // Se o usuário não possui a chave configurada e não optou explicitamente por prosseguir manual, alerta com o modal explicativo
@@ -991,7 +991,7 @@ window.App = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fastshop_ementario_db_${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `empresax_ementario_db_${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   },
@@ -1056,11 +1056,11 @@ window.App = {
         document.body.classList.toggle('light-theme');
         const isLight = document.body.classList.contains('light-theme');
         btn.innerHTML = isLight ? '🌙' : '☀️';
-        localStorage.setItem('fastshop_theme', isLight ? 'light' : 'dark');
+        localStorage.setItem('empresax_theme', isLight ? 'light' : 'dark');
       });
     }
 
-    if (localStorage.getItem('fastshop_theme') === 'light') {
+    if ((localStorage.getItem('empresax_theme') || localStorage.getItem('fastshop_theme')) === 'light') {
       document.body.classList.add('light-theme');
       if (btn) btn.innerHTML = '🌙';
     }
@@ -1087,13 +1087,16 @@ window.App = {
     const perStr = (bol.periodo || '').trim().replace(/[\/\\:*?"<>|]/g, '.');
     document.title = perStr ? `Ementário - Boletim - ${numStr} - ${perStr}` : `Ementário - Boletim - ${numStr}`;
 
-    const logoUri = window.FASTSHOP_LOGO_URI || 'assets/logo_fastshop.jpeg';
+    const logoUri = window.EMPRESAX_LOGO_URI || '';
+    const logoHtml = logoUri 
+      ? `<img src="${logoUri}" alt="EmpresaX">` 
+      : `<span class="header-brand-name" style="font-size: 15pt; font-weight: 800; color: #111827; letter-spacing: -0.5px; font-family: sans-serif;">EmpresaX</span>`;
 
     const renderHeader = () => `
       <table class="header-table">
         <tr>
           <td class="header-logo-cell">
-            <img src="${logoUri}" alt="Fast Shop">
+            ${logoHtml}
           </td>
           <td class="header-title-cell">Boletim Fiscal</td>
           <td class="header-info-cell">
@@ -1465,7 +1468,7 @@ window.App = {
     const input = document.getElementById('gemini-api-key-input');
     const statusEl = document.getElementById('gemini-modal-status');
     const resultBox = document.getElementById('gemini-test-result');
-    const currentKey = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
+    const currentKey = (localStorage.getItem('empresax_gemini_api_key') || localStorage.getItem('fastshop_gemini_api_key') || '').trim();
 
     if (resultBox) resultBox.style.display = 'none';
     if (input) input.value = currentKey;
@@ -1549,7 +1552,7 @@ window.App = {
       return;
     }
 
-    localStorage.setItem('fastshop_gemini_api_key', key);
+    localStorage.setItem('empresax_gemini_api_key', key);
     this.updateGeminiStatusIndicator();
 
     const resultBox = document.getElementById('gemini-test-result');
@@ -1570,6 +1573,7 @@ window.App = {
   },
 
   clearGeminiKey() {
+    localStorage.removeItem('empresax_gemini_api_key');
     localStorage.removeItem('fastshop_gemini_api_key');
     const input = document.getElementById('gemini-api-key-input');
     if (input) input.value = '';
@@ -1593,7 +1597,7 @@ window.App = {
   },
 
   updateGeminiStatusIndicator() {
-    const key = (localStorage.getItem('fastshop_gemini_api_key') || '').trim();
+    const key = (localStorage.getItem('empresax_gemini_api_key') || localStorage.getItem('fastshop_gemini_api_key') || '').trim();
     const dot = document.getElementById('gemini-status-indicator');
     const btnLabel = document.getElementById('gemini-btn-label');
 

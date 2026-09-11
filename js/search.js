@@ -1,5 +1,5 @@
 /**
- * Fast Shop - Ementário Fiscal
+ * EmpresaX - Ementário Fiscal
  * Motor de Busca Global e Filtragem Dinâmica
  */
 

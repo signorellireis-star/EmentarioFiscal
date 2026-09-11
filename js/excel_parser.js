@@ -1,5 +1,5 @@
 /**
- * Fast Shop - Ementário Fiscal
+ * EmpresaX - Ementário Fiscal
  * Módulo de extração e interpretação client-side de planilhas Excel (.xlsx)
  * Requer biblioteca SheetJS (XLSX) carregada no ambiente.
  */
@@ -124,7 +124,7 @@ window.ExcelParser = {
       periodo: detectedPeriodo || "Semana Atual",
       departamento: "Fiscal",
       subtitulo: "Ementário Fiscal",
-      equipe: "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+      equipe: "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
       itens: rawLaws.map((law, idx) => {
         // Tenta deduzir UF / Esfera se tiver padrão no título
         let esfera = "ESTADUAL";
@@ -349,7 +349,7 @@ window.TaxSynthesizer = {
       planoAcao = [
         `**Consultoria / Planejamento Tributário:** Analisar o teor da Resposta à Consulta nº ${numRC}/${anoRC} e confrontar com os procedimentos de apuração e entradas/saídas praticados pelas filiais paulistas.`,
         `**Sistemas / TI Fiscal:** Em caso de impactos em alíquotas ou parametrização cadastral, alinhar ajustes preventivos na matriz de regras tributárias do ERP (SAP/Mastersaf).`,
-        `**Compliance Fiscal:** Mapear e arquivar o posicionamento oficial no repositório de jurisprudência administrativa da Fast Shop para eventuais fiscalizações.`
+        `**Compliance Fiscal:** Mapear e arquivar o posicionamento oficial no repositório de jurisprudência administrativa da EmpresaX para eventuais fiscalizações.`
       ];
     }
     // 2. Portarias da SEFAZ/SP (Portaria SRE, Portaria CAT)
@@ -572,7 +572,7 @@ window.TaxSynthesizer = {
       ];
 
       planoAcao = [
-        `**Planejamento Tributário / Indiretos:** Analisar o teor oficial da ${norma} e avaliar impactos nas operações interestaduais da Fast Shop.`
+        `**Planejamento Tributário / Indiretos:** Analisar o teor oficial da ${norma} e avaliar impactos nas operações interestaduais da EmpresaX.`
       ];
     }
     // 8.1. Municipal / Diários Oficiais de Prefeituras (Vitória, Rio de Janeiro, etc.)
@@ -684,7 +684,7 @@ window.TaxSynthesizer = {
             ];
             planoAcao = [
               `**TI Fiscal / ERP:** Parametrizar as novas diretrizes da ${norma} nos sistemas e apurações das filiais sob circunscrição de ${uf}.`,
-              `**Compliance Tributário:** Acompanhar a vigência e validar aderência das rotinas fiscais da Fast Shop.`
+              `**Compliance Tributário:** Acompanhar a vigência e validar aderência das rotinas fiscais da EmpresaX.`
             ];
           }
         }
@@ -884,7 +884,7 @@ window.TaxSynthesizer = {
       periodo: periodo || "Semana Atual",
       departamento: "Fiscal",
       subtitulo: "Ementário Fiscal",
-      equipe: "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+      equipe: "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
       itens: itens,
       noticias: noticias
     };
@@ -915,7 +915,7 @@ window.TaxSynthesizer = {
     }).join('\n\n');
 
     const promptText = `
-Você é o assistente sênior de inteligência tributária e compliance fiscal da Fast Shop.
+Você é o assistente sênior de inteligência tributária e compliance fiscal da EmpresaX.
 Analise a seguinte lista de links de legislação fiscal e notícias tributárias para gerar o Boletim de Ementário Fiscal corporativo nº ${numeroBoletim} (${periodo}).
 Atenção: Os títulos e conteúdos oficiais extraídos diretamente das páginas já foram incluídos abaixo para sua análise profunda.
 
@@ -986,7 +986,7 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
   "periodo": "${periodo}",
   "departamento": "Fiscal",
   "subtitulo": "Ementário Fiscal",
-  "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br",
+  "equipe": "Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@empresax.com.br",
   "itens": [
     {
       "numero": 1,
@@ -1003,10 +1003,10 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
         "O Conselho Nacional de Política Fazendária (**CONFAZ**) publicou o **Convênio ICMS nº 10/2026**, que **prorroga e altera o Convênio ICMS nº 52/1991**, mantendo o benefício fiscal de **redução da base de cálculo do ICMS** incidente sobre as saídas de **equipamentos industriais e implementos agrícolas**.",
         "A prorrogação assegura a continuidade da aplicação das cargas tributárias reduzidas nas operações internas e interestaduais, evitando o encarecimento da cadeia de bens de capital e estabelecendo novos prazos de vigência para os setores contemplados nos Anexos I e II da norma originária."
       ],
-      "entendimento_assunto": "A publicação preserva um dos incentivos fiscais mais tradicionais e relevantes do país (**Convênio ICMS 52/1991**), impedindo o aumento da carga de ICMS sobre máquinas e equipamentos. Para os gestores da Fast Shop, o impacto operacional exige validação das parametrizações no ERP para os NCMs correspondentes, garantindo que o faturamento continue aplicando as alíquotas efetivas favorecidas sem interrupção.",
+      "entendimento_assunto": "A publicação preserva um dos incentivos fiscais mais tradicionais e relevantes do país (**Convênio ICMS 52/1991**), impedindo o aumento da carga de ICMS sobre máquinas e equipamentos. Para os gestores da EmpresaX, o impacto operacional exige validação das parametrizações no ERP para os NCMs correspondentes, garantindo que o faturamento continue aplicando as alíquotas efetivas favorecidas sem interrupção.",
       "plano_de_acao": [
         "**TI Fiscal / Sistemas:** Revisar no ERP as tabelas e vigências de redução de base de cálculo atreladas ao Convênio ICMS 52/1991 para evitar rejeições ou destaque indevido.",
-        "**Planejamento Tributário:** Acompanhar a ratificação e os decretos de internalização do Convênio 10/2026 nos regulamentos estaduais dos Estados com filiais da Fast Shop (SP, MG, RJ, etc.)."
+        "**Planejamento Tributário:** Acompanhar a ratificação e os decretos de internalização do Convênio 10/2026 nos regulamentos estaduais dos Estados com filiais da EmpresaX (SP, MG, RJ, etc.)."
       ],
       "vigencia": "Efeitos a partir da ratificação nacional."
     }
@@ -1046,7 +1046,7 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
           body: JSON.stringify({
             model: 'gpt-4o-mini', // Modelo mais rápido, preciso e de menor custo da OpenAI
             messages: [
-              { role: 'system', content: 'Você é o assistente sênior de inteligência tributária da Fast Shop. Responda exclusivamente em JSON válido conforme o esquema solicitado.' },
+              { role: 'system', content: 'Você é o assistente sênior de inteligência tributária da EmpresaX. Responda exclusivamente em JSON válido conforme o esquema solicitado.' },
               { role: 'user', content: promptText }
             ],
             response_format: { type: 'json_object' },

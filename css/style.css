@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Fast Shop - Portal do Ementário Fiscal (Design System & Estilos)
+   EmpresaX - Portal do Ementário Fiscal (Design System & Estilos)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Fast Shop Brand Identity */
+  /* EmpresaX Brand Identity */
   --fs-red: #E30613;
   --fs-red-hover: #c00410;
   --fs-red-glow: rgba(227, 6, 19, 0.25);
