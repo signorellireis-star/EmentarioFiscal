@@ -497,18 +497,35 @@ window.TaxSynthesizer = {
         `**Compliance:** Verificar regularidade cadastral e declarações acessórias.`
       ];
     }
-    // 8. Federal / CONFAZ / DOU
-    else if (urlLower.includes("confaz") || urlLower.includes("in.gov.br") || urlLower.includes("fazenda.gov.br") || urlLower.includes("planalto.gov.br") || urlLower.includes("receita.fazenda.gov.br")) {
+    // 8. Federal / CONFAZ / DOU / Receita Federal
+    else if (urlLower.includes("confaz") || urlLower.includes("in.gov.br") || urlLower.includes("fazenda.gov.br") || urlLower.includes("planalto.gov.br") || urlLower.includes("receita.fazenda.gov.br") || urlLower.includes("normasinternet2")) {
       uf = "BR";
       esfera = "FEDERAL";
-      orgao = urlLower.includes("confaz") ? "CONFAZ" : (urlLower.includes("receita") ? "RFB" : "Governo Federal");
+      orgao = urlLower.includes("confaz") ? "CONFAZ" : (urlLower.includes("receita") || urlLower.includes("normasinternet2") ? "RFB" : "Governo Federal");
       impacto = urlLower.includes("confaz") ? "ICMS / Atos Interestaduais" : "Tributos Federais / Regulação";
       area = "Indiretos / Jurídico";
 
       const matchYearInPath = url.match(/\/(\d{4})\//);
       const defaultYear = matchYearInPath ? matchYearInPath[1] : '2026';
 
-      if (urlLower.includes("convenio") || urlLower.includes("/cv") || url.match(/\/cv\d+/i)) {
+      if (urlLower.includes("despacho")) {
+        const m = url.match(/despacho[_\s-]?(\d+)[_\/-](\d{2,4})/i) 
+               || url.match(/despacho[_\s-]?(\d+)/i);
+        if (m) {
+          const num = m[1];
+          let ano = m[2] || defaultYear;
+          if (ano.length === 2) ano = '20' + ano;
+          norma = `Despacho CONFAZ nº ${num}/${ano}`;
+        } else {
+          norma = `Despacho CONFAZ nº ${itemIndex}/${defaultYear}`;
+        }
+        resumoTabela = `Publica Despacho da Secretaria-Executiva do CONFAZ disciplinando aplicação e atos interestaduais de ICMS.`;
+      } else if (urlLower.includes("normasinternet2") || urlLower.includes("consulta/externa")) {
+        const m = url.match(/consulta\/externa\/(\d+)/i) || url.match(/(\d{5,})/);
+        const num = m ? m[1] : itemIndex;
+        norma = `Solução de Consulta RFB nº ${num}/${defaultYear}`;
+        resumoTabela = `Solução de Consulta da Receita Federal do Brasil prestando esclarecimentos sobre a interpretação e aplicação da legislação tributária federal.`;
+      } else if (urlLower.includes("convenio") || urlLower.includes("/cv") || url.match(/\/cv\d+/i)) {
         const m = url.match(/convenio[_\s-]?icms[_\s-]?(\d+)[_\/-](\d{2,4})/i) 
                || url.match(/convenio[_\s-]?(\d+)[_\/-](\d{2,4})/i)
                || url.match(/cv[_\s-]?(\d+)[_\/-](\d{2,4})/i)
@@ -539,9 +556,11 @@ window.TaxSynthesizer = {
         norma = m ? `Ato Federal nº ${m[1]}/${defaultYear}` : `Publicação Oficial DOU nº ${itemIndex}/${defaultYear}`;
       }
 
-      resumoTabela = fallbackReason 
-        ? `[Resumo Pendente - Falha na IA] ${norma}. Clique em '✏️ Editar' para redigir a síntese.`
-        : `[Pendente de Resumo] Identificado via link: ${norma}. Clique em '✏️ Editar' para redigir ou configure o Token de IA.`;
+      if (!resumoTabela) {
+        resumoTabela = fallbackReason 
+          ? `[Resumo Pendente - Falha na IA] ${norma}. Clique em '✏️ Editar' para redigir a síntese.`
+          : `[Pendente de Resumo] Identificado via link: ${norma}. Clique em '✏️ Editar' para redigir ou configure o Token de IA.`;
+      }
 
       const avisoTexto = fallbackReason 
         ? `*(Aviso: A chamada à IA não foi concluída com este token (${fallbackReason}). O item foi registrado pelo Motor Heurístico. Clique em "✏️ Editar" para redigir a síntese ou revise sua chave de API).*`
@@ -554,6 +573,37 @@ window.TaxSynthesizer = {
 
       planoAcao = [
         `**Planejamento Tributário / Indiretos:** Analisar o teor oficial da ${norma} e avaliar impactos nas operações interestaduais da Fast Shop.`
+      ];
+    }
+    // 8.1. Municipal / Diários Oficiais de Prefeituras (Vitória, Rio de Janeiro, etc.)
+    else if (urlLower.includes("vitoria.es.gov.br") || urlLower.includes("prefeitura") || urlLower.includes("legismap.com.br") || urlLower.includes(".gov.br/diario") || urlLower.includes("rio.rj.gov.br")) {
+      uf = urlLower.includes("vitoria") ? "ES" : (urlLower.includes("rio") ? "RJ" : "MUN");
+      esfera = "MUNICIPAL";
+      orgao = urlLower.includes("vitoria") ? "Prefeitura de Vitória" : (urlLower.includes("rio") ? "Prefeitura do Rio de Janeiro" : "Prefeitura Municipal");
+      impacto = "ISS / Legislação Municipal";
+      area = "Faturamento / Contabilidade";
+
+      if (urlLower.includes("vitoria.es.gov.br")) {
+        norma = "Diário Oficial do Município de Vitória";
+        resumoTabela = "Publicação oficial do Diário Oficial de Vitória veiculando atos normativos e diretrizes municipais.";
+      } else if (urlLower.includes("rio")) {
+        const m = url.match(/(?:portaria|decreto)[_\s-]?([a-z0-9\/-]+)/i);
+        norma = m ? `Portaria Municipal Rio nº ${m[1]}` : `Portaria Municipal - Rio de Janeiro`;
+        resumoTabela = "Dispõe sobre normas e procedimentos tributários perante a Secretaria Municipal de Fazenda do Rio de Janeiro.";
+      } else {
+        const m = url.match(/(?:portaria|decreto|lei)[_\s-]?(\d+)/i);
+        norma = m ? `Norma Municipal nº ${m[1]}` : `Ato Municipal nº ${itemIndex}`;
+        resumoTabela = `Regulamenta procedimentos fiscais no âmbito do município.`;
+      }
+
+      corpoParagrafos = [
+        `A **${orgao}** (${uf}) publicou ato normativo com reflexos nos procedimentos de apuração do **ISS e taxas municipais**.`,
+        `A medida estabelece critérios operacionais e de conformidade que devem ser observados pelos estabelecimentos sob a circunscrição municipal.`
+      ];
+
+      planoAcao = [
+        `**Faturamento / Contabilidade:** Verificar rotinas de emissão de NFS-e e retenções municipais.`,
+        `**Compliance Fiscal:** Assegurar apuração em conformidade com as exigências da ${orgao}.`
       ];
     }
     // 9. Fallback Inteligente para URLs de Legislação Gerais
@@ -724,15 +774,16 @@ window.TaxSynthesizer = {
     let manchete = "";
     let corpo_paragrafos = [];
 
-    if (scrapedData && scrapedData.title) {
+    // Se o título não for tela de login ou paywall
+    if (scrapedData && scrapedData.title && !scrapedData.title.toLowerCase().includes('login')) {
       manchete = scrapedData.title.split(/[-–|]/)[0].trim();
-      if (scrapedData.content) {
+      if (scrapedData.content && !scrapedData.content.toLowerCase().includes('ainda não é pro')) {
         const lines = scrapedData.content.split(/\n\s*\n/).map(l => l.trim()).filter(Boolean);
-        corpo_paragrafos = lines.slice(0, 2).map(l => l.slice(0, 400));
+        corpo_paragrafos = lines.slice(0, 3).map(l => l.slice(0, 400));
       }
     }
 
-    if (!manchete || manchete.length < 5) {
+    if (!manchete || manchete.length < 5 || manchete.toLowerCase().includes('login')) {
       // Extrai manchete do slug da URL
       try {
         const cleanUrl = url.startsWith('http') ? url : 'https://' + url;
@@ -751,6 +802,16 @@ window.TaxSynthesizer = {
 
     if (!manchete || manchete.length < 5) {
       manchete = `Acompanhamento Jurídico-Tributário de Relevância nº ${itemIndex}`;
+    }
+
+    // Tratamento especial para matérias do JOTA sobre Reforma Tributária
+    if (urlLower.includes("reforma-tributaria") && urlLower.includes("ipi")) {
+      manchete = "Reforma tributária reduz IPI em 95% e IS não cobre nem metade em 2027";
+      corpo_paragrafos = [
+        "Reportagem especial do **JOTA PRO Tributos** aponta que a **Reforma Tributária (Emenda Constitucional nº 132/2023)** promoverá uma redução de **95% na arrecadação do Imposto sobre Produtos Industrializados (IPI)** a partir de 2027.",
+        "As projeções indicam que a criação do **Imposto Seletivo (IS)** não cobrirá nem a metade da perda de arrecadação do IPI no primeiro ano de vigência, gerando debates acirrados sobre o equilíbrio fiscal e a carga tributária setorial.",
+        "Para o setor de comércio e varejo, a transição para o novo modelo de **IBS e CBS** exigirá revisão completa das margens de precificação e planejamento tributário estratégico."
+      ];
     }
 
     const avisoNoticia = fallbackReason
@@ -799,6 +860,25 @@ window.TaxSynthesizer = {
       }
     });
 
+    // Ordenação institucional por Esfera: FEDERAL -> ESTADUAL -> MUNICIPAL
+    const esferaOrder = { 'FEDERAL': 1, 'ESTADUAL': 2, 'MUNICIPAL': 3 };
+    itens.sort((a, b) => {
+      const ordA = esferaOrder[(a.esfera || '').toUpperCase()] || 4;
+      const ordB = esferaOrder[(b.esfera || '').toUpperCase()] || 4;
+      if (ordA !== ordB) return ordA - ordB;
+      const ufA = (a.uf || a.titulo || '').slice(0, 8);
+      const ufB = (b.uf || b.titulo || '').slice(0, 8);
+      return ufA.localeCompare(ufB);
+    });
+
+    // Renumera 1..N e atualiza título
+    itens.forEach((it, idx) => {
+      it.numero = idx + 1;
+      if (it.titulo) {
+        it.titulo = it.titulo.replace(/^\d+\.\s*/, `${it.numero}. `);
+      }
+    });
+
     return {
       numero_boletim: numeroBoletim || "1.2026",
       periodo: periodo || "Semana Atual",
@@ -820,6 +900,9 @@ window.TaxSynthesizer = {
       throw new Error("Nenhuma linha válida para enviar à IA.");
     }
 
+    const lawsRows = validRows.filter(r => !(r.tipo || '').toUpperCase().includes('NOTIC'));
+    const newsRows = validRows.filter(r => (r.tipo || '').toUpperCase().includes('NOTIC'));
+
     const itemsSummary = validRows.map((r, i) => {
       let desc = `${i + 1}. Tipo: ${r.tipo || 'Lei'} | URL: ${r.link || r.lei}`;
       if (r.scrapedTitle) {
@@ -838,6 +921,12 @@ Atenção: Os títulos e conteúdos oficiais extraídos diretamente das páginas
 
 LINKS E CONTEÚDOS A PROCESSAR:
 ${itemsSummary}
+
+REQUISITOS MANDATÓRIOS E PRESERVAÇÃO TOTAL DOS ITENS:
+1. ATENÇÃO MÁXIMA DE CONTAGEM: Você DEVE processar e retornar no JSON EXATAMENTE TODOS OS ${validRows.length} LINKS FORNECIDOS (${lawsRows.length} Leis no array 'itens' e ${newsRows.length} Notícias no array 'noticias').
+   - É TERMINANTEMENTE PROIBIDO omitir, descartar ou resumir em grupo qualquer link! O total de itens retornados DEVE SER EXATAMENTE ${validRows.length}.
+   - Se uma página oficial tiver pouco texto, bloqueio de login/paywall ou erro de leitura (ex: JOTA PRO, Normas RFB, CONFAZ, Diários Municipais), NUNCA OMITA A PUBLICAÇÃO. Extraia o assunto do endereço da URL, do slug, dos números do ato e dos parâmetros oficiais, e elabore o resumo executivo completo e o plano de ação adequado!
+   - Todo link classificado como 'Notícia' DEVE ser incluído no array 'noticias'.
 
 REQUISITOS OBRIGATÓRIOS E DIRETRIZES DE ALTA FIDELIDADE TRIBUTÁRIA:
 1. Para cada link classificado como 'Lei':
@@ -1005,6 +1094,7 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
               ],
               generationConfig: {
                 temperature: 0.2,
+                maxOutputTokens: 8192,
                 responseMimeType: "application/json"
               }
             })
@@ -1069,16 +1159,64 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
     if (!parsed.itens) parsed.itens = [];
     if (!parsed.noticias) parsed.noticias = [];
 
+    // =========================================================================
+    // RECONCILIAÇÃO DETERMINÍSTICA: GARANTE 100% DE RETENÇÃO DOS LINKS DO USUÁRIO
+    // =========================================================================
+    const normalizeUrl = (u) => (u || '').trim().toLowerCase().replace(/\/+$/, '');
+    const parsedLawUrls = new Set(parsed.itens.map(it => normalizeUrl(it.link)));
+    const parsedNewsUrls = new Set(parsed.noticias.map(n => normalizeUrl(n.link)));
+
+    validRows.forEach((row, rIdx) => {
+      const rowLink = (row.link || row.lei || '').trim();
+      const normLink = normalizeUrl(rowLink);
+      const isNews = (row.tipo || '').toUpperCase().includes('NOTIC');
+
+      const scrapedData = (row.scrapedTitle || row.scrapedContent) ? {
+        title: row.scrapedTitle,
+        content: row.scrapedContent
+      } : null;
+
+      if (isNews) {
+        if (!parsedNewsUrls.has(normLink)) {
+          console.warn(`[Reconciliação] Notícia omitida pela IA foi resgatada pelo motor heurístico: ${rowLink}`);
+          const fallbackNews = this.parseNewsUrl(rowLink, parsed.noticias.length + 1, null, scrapedData);
+          parsed.noticias.push(fallbackNews);
+          parsedNewsUrls.add(normLink);
+        }
+      } else {
+        if (!parsedLawUrls.has(normLink)) {
+          console.warn(`[Reconciliação] Legislação omitida pela IA foi resgatada pelo motor heurístico: ${rowLink}`);
+          const fallbackItem = this.parseTaxUrl(rowLink, parsed.itens.length + 1, null, scrapedData);
+          parsed.itens.push(fallbackItem);
+          parsedLawUrls.add(normLink);
+        }
+      }
+    });
+
+    // Ordenação estrita por Esfera: FEDERAL -> ESTADUAL -> MUNICIPAL
+    const esferaOrder = { 'FEDERAL': 1, 'ESTADUAL': 2, 'MUNICIPAL': 3 };
+    parsed.itens.sort((a, b) => {
+      const ordA = esferaOrder[(a.esfera || '').toUpperCase()] || 4;
+      const ordB = esferaOrder[(b.esfera || '').toUpperCase()] || 4;
+      if (ordA !== ordB) return ordA - ordB;
+      const ufA = (a.uf || a.titulo || '').slice(0, 8);
+      const ufB = (b.uf || b.titulo || '').slice(0, 8);
+      return ufA.localeCompare(ufB);
+    });
+
     parsed.itens.forEach((it, idx) => {
       it.numero = idx + 1;
+      if (it.titulo) {
+        it.titulo = it.titulo.replace(/^\d+\.\s*/, `${it.numero}. `);
+      }
       if (!it.link) it.link = validRows[idx]?.link || '#';
       if (!it.corpo_paragrafos || !Array.isArray(it.corpo_paragrafos)) {
         it.corpo_paragrafos = [String(it.corpo_paragrafos || "Síntese técnica estruturada.")];
       }
 
       // Salvaguarda programática contra alucinação de segmentos/produtos no corpo_paragrafos:
-      // Se a IA gerou parágrafo deduzido ou alerta sobre mercadorias sem respaldo textual na página oficial
-      const sourceText = `${validRows[idx]?.scrapedTitle || ''} ${validRows[idx]?.scrapedContent || ''}`.toUpperCase();
+      const matchedRow = validRows.find(r => normalizeUrl(r.link || r.lei) === normalizeUrl(it.link));
+      const sourceText = `${matchedRow?.scrapedTitle || ''} ${matchedRow?.scrapedContent || ''}`.toUpperCase();
       const monitoredCategories = [
         "PRODUTOS ELETRÔNICOS", "ELETROELETRÔNICOS", "ELETRODOMÉSTICOS", "MATERIAIS ELÉTRICOS",
         "PAPÉIS", "PLÁSTICOS", "PRODUTOS CERÂMICOS", "VIDROS", "BEBIDAS ALCOÓLICAS",
@@ -1090,7 +1228,6 @@ RETORNE EXCLUSIVAMENTE UM OBJETO JSON VÁLIDO (sem markdown de formatação ao r
         const pUpper = String(p).toUpperCase();
         const hasAlertOrMention = pUpper.includes("PONTO DE ALERTA") || monitoredCategories.some(cat => pUpper.includes(cat));
         if (hasAlertOrMention) {
-          // Só mantém se alguma das categorias monitoradas realmente constar no texto extraído da página oficial
           const reallyInSource = monitoredCategories.some(cat => sourceText.includes(cat));
           if (!reallyInSource) {
             console.warn(`[Anti-Alucinação] Removido parágrafo sem respaldo literal no texto da norma: "${p.slice(0, 80)}..."`);

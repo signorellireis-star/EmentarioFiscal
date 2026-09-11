@@ -1213,6 +1213,39 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
   height: 1em;
 }
 
+.a4-sheet .toc-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.a4-sheet .toc-link:hover {
+  color: #0563c1;
+}
+
+.a4-sheet .toc-link:hover .toc-text {
+  text-decoration: underline;
+}
+
+.a4-sheet .toc-num {
+  width: 22pt;
+  flex-shrink: 0;
+}
+
+.a4-sheet .toc-text {
+  flex-shrink: 0;
+  max-width: 80%;
+}
+
+.a4-sheet .toc-page {
+  flex-shrink: 0;
+  font-weight: normal;
+}
+
 /* Footer A4 */
 .a4-sheet .footer {
   margin-top: auto;
@@ -1287,6 +1320,11 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:dis
     page-break-after: always !important;
     page-break-inside: avoid !important;
     padding: 12.5mm 12.5mm 12.5mm 15mm !important;
+  }
+
+  .a4-sheet .toc-link {
+    color: #000000 !important;
+    text-decoration: none !important;
   }
 }
 

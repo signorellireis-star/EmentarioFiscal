@@ -634,17 +634,23 @@ window.App = {
       let parts = line.includes('\t') ? line.split('\t') : line.split(';');
       parts = parts.map(p => p.trim()).filter(Boolean);
 
+      const linkCandidate = parts[0].startsWith('http') ? parts[0] : (parts[1] && parts[1].startsWith('http') ? parts[1] : parts[0]);
+      const linkLower = linkCandidate.toLowerCase();
+      const isNewsDomain = [
+        'jota.info', 'conjur.com.br', 'valor.globo.com', 'valor.com.br',
+        'migalhas.com.br', 'tributario.com.br', 'estadao.com.br', 'folha.uol.com.br'
+      ].some(d => linkLower.includes(d));
+
       if (parts.length === 1) {
         newRows.push({
-          tipo: 'Lei',
-          link: parts[0]
+          tipo: isNewsDomain ? 'Notícia' : 'Lei',
+          link: linkCandidate
         });
       } else if (parts.length >= 2) {
-        const isNoticia = parts[1].toLowerCase().includes('notic') || parts[0].toLowerCase().includes('notic');
-        const linkPart = parts[0].startsWith('http') ? parts[0] : (parts[1].startsWith('http') ? parts[1] : parts[0]);
+        const isNoticia = parts[1].toLowerCase().includes('notic') || parts[0].toLowerCase().includes('notic') || isNewsDomain;
         newRows.push({
           tipo: isNoticia ? 'Notícia' : 'Lei',
-          link: linkPart
+          link: linkCandidate
         });
       }
     });
@@ -716,6 +722,89 @@ window.App = {
   hideProcessingOverlay() {
     const modal = document.getElementById('processing-overlay');
     if (modal) modal.classList.remove('active');
+  },
+
+  /**
+   * Mescla e agrupa um boletim existente com novas publicações processadas,
+   * garantindo a ordenação institucional por Esfera (FEDERAL, ESTADUAL, MUNICIPAL)
+   * e a renumeração sequencial contínua sem duplicação de links.
+   */
+  mergeAndSortBoletim(existingBol, newGenerated) {
+    if (!existingBol) return newGenerated;
+    if (!newGenerated) return existingBol;
+
+    const normalizeUrl = (u) => (u || '').trim().toLowerCase().replace(/\/+$/, '');
+
+    // 1. Legislações
+    const mergedItens = [];
+    const seenLinks = new Set();
+
+    // Itens preexistentes do boletim
+    (existingBol.itens || []).forEach(it => {
+      const norm = normalizeUrl(it.link);
+      if (norm && !seenLinks.has(norm)) {
+        seenLinks.add(norm);
+        mergedItens.push(JSON.parse(JSON.stringify(it)));
+      }
+    });
+
+    // Novos itens processados
+    (newGenerated.itens || []).forEach(it => {
+      const norm = normalizeUrl(it.link);
+      if (norm && !seenLinks.has(norm)) {
+        seenLinks.add(norm);
+        mergedItens.push(JSON.parse(JSON.stringify(it)));
+      }
+    });
+
+    // Ordenação estrita por Esfera: FEDERAL -> ESTADUAL -> MUNICIPAL
+    const esferaOrder = { 'FEDERAL': 1, 'ESTADUAL': 2, 'MUNICIPAL': 3 };
+    mergedItens.sort((a, b) => {
+      const ordA = esferaOrder[(a.esfera || '').toUpperCase()] || 4;
+      const ordB = esferaOrder[(b.esfera || '').toUpperCase()] || 4;
+      if (ordA !== ordB) return ordA - ordB;
+      const ufA = (a.uf || a.titulo || '').slice(0, 8);
+      const ufB = (b.uf || b.titulo || '').slice(0, 8);
+      return ufA.localeCompare(ufB);
+    });
+
+    // Renumera sequencialmente 1..N e ajusta o título
+    mergedItens.forEach((it, idx) => {
+      it.numero = idx + 1;
+      if (it.titulo) {
+        it.titulo = it.titulo.replace(/^\d+\.\s*/, `${it.numero}. `);
+      }
+    });
+
+    // 2. Notícias
+    const mergedNoticias = [];
+    const seenNews = new Set();
+
+    (existingBol.noticias || []).forEach(n => {
+      const norm = normalizeUrl(n.link) || (n.titulo || '').toLowerCase();
+      if (norm && !seenNews.has(norm)) {
+        seenNews.add(norm);
+        mergedNoticias.push(JSON.parse(JSON.stringify(n)));
+      }
+    });
+
+    (newGenerated.noticias || []).forEach(n => {
+      const norm = normalizeUrl(n.link) || (n.titulo || '').toLowerCase();
+      if (norm && !seenNews.has(norm)) {
+        seenNews.add(norm);
+        mergedNoticias.push(JSON.parse(JSON.stringify(n)));
+      }
+    });
+
+    return {
+      numero_boletim: newGenerated.numero_boletim || existingBol.numero_boletim,
+      periodo: newGenerated.periodo || existingBol.periodo,
+      departamento: newGenerated.departamento || existingBol.departamento || 'Fiscal',
+      subtitulo: newGenerated.subtitulo || existingBol.subtitulo || 'Ementário Fiscal',
+      equipe: newGenerated.equipe || existingBol.equipe || 'Boletim Fiscal elaborado pelo time de Planejamento Fiscal: Andréa Celi Mantovani, Antônio Sergio da Silva, Cristiane Cunha, Emerson de Deus e Raquel Capelão. Em caso de dúvidas, favor enviar e-mail para planejamentofiscal@fastshop.com.br',
+      itens: mergedItens,
+      noticias: mergedNoticias
+    };
   },
 
   /**
@@ -796,7 +885,6 @@ window.App = {
         this.updateProcessingStep(2, `Aviso: Falha na IA. Ativando Motor Heurístico...`, true);
         await new Promise(r => setTimeout(r, 700));
 
-        // Alerta transparente para o analista fiscal não ficar sem entender
         alert(`⚠️ Aviso sobre a Inteligência Artificial:\n\nA consulta à IA retornou uma falha:\n${geminiErr.message}\n\nO boletim foi estruturado com sucesso a partir do conteúdo real extraído da página. Você pode complementar ou ajustar os dados clicando em "✏️ Editar".`);
 
         generated = TaxSynthesizer.synthesize(num, per, enrichedRows, geminiErr.message);
@@ -814,6 +902,23 @@ window.App = {
     if (!generated) {
       alert("Não foi possível gerar o boletim. Verifique os links informados.");
       return;
+    }
+
+    // =========================================================================
+    // AGRUPAMENTO AUTOMÁTICO POR NÚMERO DE BOLETIM E PERÍODO
+    // =========================================================================
+    const existingIndex = this.state.boletins.findIndex(b => 
+      (b.numero_boletim || '').trim().toLowerCase() === String(num).trim().toLowerCase()
+    );
+
+    if (existingIndex >= 0) {
+      const existingBol = this.state.boletins[existingIndex];
+      const prevCount = (existingBol.itens || []).length;
+      const prevNewsCount = (existingBol.noticias || []).length;
+
+      generated = this.mergeAndSortBoletim(existingBol, generated);
+
+      alert(`🔄 Agrupamento Realizado com Sucesso!\n\nFoi identificado que o Boletim nº ${num} já existe no repositório.\nOs novos links foram agrupados ao boletim existente mantendo a ordenação institucional por Esfera:\n1º FEDERAL\n2º ESTADUAL\n3º MUNICIPAL\n\nTotal consolidado: ${generated.itens.length} Legislações e ${generated.noticias.length} Notícia(s).`);
     }
 
     this.state.generatedBoletim = generated;
@@ -840,13 +945,23 @@ window.App = {
     }
 
     const num = this.state.generatedBoletim.numero_boletim;
-    this.state.boletins = this.state.boletins.filter(b => b.numero_boletim !== num);
-    this.state.boletins.unshift(JSON.parse(JSON.stringify(this.state.generatedBoletim)));
+    const existingIndex = this.state.boletins.findIndex(b => 
+      (b.numero_boletim || '').trim().toLowerCase() === String(num).trim().toLowerCase()
+    );
 
-    this.saveDatabase();
-    this.state.activeBoletimNum = num;
+    let finalBoletim = JSON.parse(JSON.stringify(this.state.generatedBoletim));
+
+    if (existingIndex >= 0) {
+      finalBoletim = this.mergeAndSortBoletim(this.state.boletins[existingIndex], finalBoletim);
+      this.state.boletins[existingIndex] = finalBoletim;
+    } else {
+      this.state.boletins.unshift(finalBoletim);
+    }
+
+    this.saveDatabase(finalBoletim);
+    this.state.activeBoletimNum = finalBoletim.numero_boletim;
     this.switchTab('viewer');
-    alert(`Boletim ${num} salvo com sucesso no Repositório! Todas as páginas diagramadas estão disponíveis.`);
+    alert(`Boletim ${num} consolidado e salvo com sucesso no Repositório! Todas as páginas diagramadas com hiperlinks estão disponíveis.`);
   },
 
   /**
@@ -1000,9 +1115,11 @@ window.App = {
         currentEsfera = esf;
         tocRows.push(`
           <div class="toc-category">
-            <span>${esf}</span>
-            <span class="toc-dots"></span>
-            <span>${pNum}</span>
+            <a href="#sheet-${pNum}" class="toc-link">
+              <span>${esf}</span>
+              <span class="toc-dots"></span>
+              <span class="toc-page">${pNum}</span>
+            </a>
           </div>
         `);
       }
@@ -1015,10 +1132,12 @@ window.App = {
 
       tocRows.push(`
         <div class="toc-item">
-          <span style="width: 20pt; flex-shrink: 0;">${item.numero}.</span>
-          <span style="flex-shrink: 0; max-width: 80%;">${cleanTitle}</span>
-          <span class="toc-dots"></span>
-          <span>${pNum}</span>
+          <a href="#sheet-${pNum}" class="toc-link">
+            <span class="toc-num">${item.numero}.</span>
+            <span class="toc-text">${cleanTitle}</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">${pNum}</span>
+          </a>
         </div>
       `);
     });
@@ -1027,11 +1146,28 @@ window.App = {
       const notiPageStart = (bol.itens || []).length + 2;
       tocRows.push(`
         <div class="toc-category">
-          <span>NOTÍCIAS</span>
-          <span class="toc-dots"></span>
-          <span>${notiPageStart}</span>
+          <a href="#sheet-${notiPageStart}" class="toc-link">
+            <span>NOTÍCIAS</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">${notiPageStart}</span>
+          </a>
         </div>
       `);
+
+      bol.noticias.forEach((noticia, nIdx) => {
+        const notiPNum = notiPageStart + nIdx;
+        let notiTitle = noticia.titulo || `Matéria Jurídico-Tributária ${nIdx + 1}`;
+        tocRows.push(`
+          <div class="toc-item">
+            <a href="#sheet-${notiPNum}" class="toc-link">
+              <span class="toc-num">${nIdx + 1}.</span>
+              <span class="toc-text">${notiTitle}</span>
+              <span class="toc-dots"></span>
+              <span class="toc-page">${notiPNum}</span>
+            </a>
+          </div>
+        `);
+      });
     }
 
     const p1 = `
