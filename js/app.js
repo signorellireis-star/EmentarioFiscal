@@ -969,13 +969,15 @@ window.App = {
    */
   downloadDraftJson() {
     const target = this.state.generatedBoletim || this.state.boletins.find(b => b.numero_boletim === this.state.activeBoletimNum) || this.state.boletins[0];
-    const num = target ? target.numero_boletim : 'boletim';
+    const num = target ? String(target.numero_boletim || '').trim() : 'boletim';
+    const per = target && target.periodo ? String(target.periodo || '').trim().replace(/[\/\\:*?"<>|]/g, '.') : '';
+    const filename = per ? `Ementário - Boletim - ${num} - ${per}.json` : `Ementário - Boletim - ${num}.json`;
     const jsonStr = JSON.stringify(target, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `boletim_${num}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
   },
@@ -1079,6 +1081,11 @@ window.App = {
       container.innerHTML = `<p style="padding: 3rem; text-align: center;">Nenhum boletim selecionado.</p>`;
       return;
     }
+
+    // Configura o título do documento para o padrão oficial ao salvar em PDF
+    const numStr = (bol.numero_boletim || '').trim();
+    const perStr = (bol.periodo || '').trim().replace(/[\/\\:*?"<>|]/g, '.');
+    document.title = perStr ? `Ementário - Boletim - ${numStr} - ${perStr}` : `Ementário - Boletim - ${numStr}`;
 
     const logoUri = window.FASTSHOP_LOGO_URI || 'assets/logo_fastshop.jpeg';
 
@@ -1402,6 +1409,16 @@ window.App = {
    */
   printBulletin() {
     this.switchTab('viewer');
+    const select = document.getElementById('viewer-boletim-select');
+    const num = select ? select.value : this.state.activeBoletimNum;
+    const bol = this.state.boletins.find(b => b.numero_boletim === num) || this.state.boletins[0];
+
+    if (bol) {
+      const numStr = (bol.numero_boletim || '').trim();
+      const perStr = (bol.periodo || '').trim().replace(/[\/\\:*?"<>|]/g, '.');
+      document.title = perStr ? `Ementário - Boletim - ${numStr} - ${perStr}` : `Ementário - Boletim - ${numStr}`;
+    }
+
     setTimeout(() => {
       window.print();
     }, 250);
